@@ -7,11 +7,13 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"online-store/router"
 	"os"
 	"sync"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 // Database instance
@@ -116,6 +118,12 @@ func main() {
 
 	// Create a Fiber app
 	app := fiber.New()
+	app.Use(cors.New())
+	app.Get("/", func(ctx *fiber.Ctx) error {
+		return ctx.Send([]byte("Welcome to the online-store mongo book shop!"))
+	})
+
+	router.SetupRoutes(app)
 
 	app.Get("/register", func(c *fiber.Ctx) error {
 

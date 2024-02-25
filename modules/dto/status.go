@@ -1,8 +1,7 @@
-package common
+package dto
 
 import (
 	"fmt"
-	"time"
 )
 
 const (
@@ -11,11 +10,6 @@ const (
 	StatusBadRequest string = "Bad Request"
 	StatusNotFound   string = "Not Found"
 )
-
-type DefaultDate struct {
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-}
 
 type DefaultResponse struct {
 	Status  string `json:"status"`

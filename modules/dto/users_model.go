@@ -1,9 +1,9 @@
-package common
+package dto
 
 type UserDB struct {
-	DefaultDate
 	Email  string `json:"email"`
 	UserID int    `json:"user_id"`
+	DefaultDate
 }
 
 type StructNull struct {
