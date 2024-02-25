@@ -1,0 +1,5 @@
+.DS_Store
+sf7-enterprise-std
+vendor/
+.vscode/*
+*.exe
