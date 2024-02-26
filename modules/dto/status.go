@@ -31,7 +31,12 @@ func (response *DefaultResponse) PrepareStatusNotFound(requiredField string) {
 	response.Message = fmt.Sprintf("%v is not found", requiredField)
 }
 
-func (response *DefaultResponse) PrepareStatusSuccess() {
+func (response *DefaultResponse) PrepareStatusSuccess(message string) {
 	response.Status = StatusSuccess
-	response.Message = StatusSuccess
+	response.Message = message
+}
+
+func (response *DefaultResponse) PrepareStatusFailed(message string) {
+	response.Status = StatusFailed
+	response.Message = message
 }

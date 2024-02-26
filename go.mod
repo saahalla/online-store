@@ -10,6 +10,7 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
+	github.com/doug-martin/goqu/v9 v9.19.0 // indirect
 	github.com/google/uuid v1.5.0 // indirect
 	github.com/jmoiron/sqlx v1.3.5 // indirect
 	github.com/klauspost/compress v1.17.0 // indirect

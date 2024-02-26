@@ -17,10 +17,29 @@ func Get(s Service) fiber.Handler {
 			return c.Status(fiber.StatusUnprocessableEntity).JSON(resp)
 		}
 
-		resp.PrepareStatusSuccess()
+		resp.PrepareStatusSuccess("success get data")
 		return c.JSON(dto.GetProductResponse{
 			DefaultResponse: resp,
 			Data:            data,
+		})
+	}
+
+}
+
+func Add(s Service) fiber.Handler {
+
+	return func(c *fiber.Ctx) error {
+		err := s.Add(c)
+		resp := dto.DefaultResponse{}
+
+		if err != nil {
+			resp.PrepareStatusFailed(err.Error())
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(resp)
+		}
+
+		resp.PrepareStatusSuccess("success add product")
+		return c.JSON(dto.AddProductResponse{
+			DefaultResponse: resp,
 		})
 	}
 

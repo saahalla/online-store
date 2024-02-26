@@ -1,6 +1,8 @@
 package router
 
 import (
+	"log"
+	"online-store/database"
 	"online-store/modules/products"
 
 	"github.com/gofiber/fiber/v2"
@@ -9,6 +11,13 @@ import (
 
 // SetupRoutes setup router api
 func SetupRoutes(app *fiber.App) {
+
+	// database
+	db, err := database.GetDBConnection()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Middleware
 	api := app.Group("/", logger.New())
 	// api.Get("/", handler.Hello)
@@ -26,8 +35,9 @@ func SetupRoutes(app *fiber.App) {
 
 	// Product
 	product := api.Group("/product")
-	productServices := products.NewService()
+	productServices := products.NewService(db)
 	product.Get("/", products.Get(productServices))
+	product.Post("/", products.Add(productServices))
 	// product.Get("/", handler.GetAllProducts)
 	// product.Get("/:id", handler.GetProduct)
 	// product.Post("/", middleware.Protected(), handler.CreateProduct)
