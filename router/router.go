@@ -1,13 +1,16 @@
 package router
 
 import (
+	"online-store/modules/products"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 // SetupRoutes setup router api
 func SetupRoutes(app *fiber.App) {
 	// Middleware
-	// api := app.Group("/", logger.New())
+	api := app.Group("/", logger.New())
 	// api.Get("/", handler.Hello)
 
 	// Auth
@@ -22,7 +25,9 @@ func SetupRoutes(app *fiber.App) {
 	// user.Delete("/:id", middleware.Protected(), handler.DeleteUser)
 
 	// Product
-	// product := api.Group("/product")
+	product := api.Group("/product")
+	productServices := products.NewService()
+	product.Get("/", products.Get(productServices))
 	// product.Get("/", handler.GetAllProducts)
 	// product.Get("/:id", handler.GetProduct)
 	// product.Post("/", middleware.Protected(), handler.CreateProduct)

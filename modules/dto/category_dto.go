@@ -7,8 +7,8 @@ type (
 		DefaultDate
 	}
 
-	CategoryResponseList []CategoryResponse
-	CategoryResponse     struct {
+	CategoryDataList []CategoryData
+	CategoryData     struct {
 		ID           int    `json:"id"`
 		CategoryName string `json:"category_name"`
 	}

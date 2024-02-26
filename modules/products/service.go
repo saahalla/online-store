@@ -10,6 +10,6 @@ type Service interface {
 	Add(c *fiber.Ctx) error
 	Update(c *fiber.Ctx) error
 	Delete(c *fiber.Ctx) error
-	Get(c *fiber.Ctx) dto.ProductResponse
-	List(c *fiber.Ctx) dto.ProductResponseList
+	Get(c *fiber.Ctx) (dto.ProductData, error)
+	List(c *fiber.Ctx) (dto.ProductDataList, error)
 }
