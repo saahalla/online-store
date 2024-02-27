@@ -54,4 +54,16 @@ type (
 	DeleteProductResponse struct {
 		DefaultResponse
 	}
+
+	// update
+	UpdateProductRequest struct {
+		ProductName string   `json:"product_name"`
+		Stock       *int     `json:"stock"`
+		Price       *float64 `json:"price"`
+		Image       string   `json:"image"`
+		CategoryID  *int     `json:"category_id"`
+	}
+	UpdateProductResponse struct {
+		DefaultResponse
+	}
 )

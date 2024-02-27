@@ -83,3 +83,22 @@ func Delete(s Service) fiber.Handler {
 	}
 
 }
+
+func Update(s Service) fiber.Handler {
+
+	return func(c *fiber.Ctx) error {
+		resp := dto.DefaultResponse{}
+
+		err := s.Update(c)
+		if err != nil {
+			resp.PrepareStatusFailed(err.Error())
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(resp)
+		}
+
+		resp.PrepareStatusSuccess("success update product")
+		return c.JSON(dto.UpdateProductResponse{
+			DefaultResponse: resp,
+		})
+	}
+
+}
