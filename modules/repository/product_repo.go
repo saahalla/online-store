@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"context"
 	"log"
 	"online-store/modules/dto"
 	"online-store/shared/constant"
@@ -30,27 +29,17 @@ func NewProductRepo(db *sqlx.DB) ProductRepository {
 }
 
 func (r *productRepository) Add(product dto.ProductDB) error {
+	dialect := goqu.New(r.db.DriverName(), r.db)
 
-	_, err := r.db.ExecContext(context.Background(),
-		`INSERT INTO products(
-			product_name, 
-			price, 
-			stock, 
-			image, 
-			created_at, 
-			created_by, 
-			modified_at, 
-			modified_by) 
-		VALUES(?,?,?,?,?,?,?,?)`,
-		product.ProductName,
-		product.Price,
-		product.Stock,
-		product.Image,
-		product.CreatedAt,
-		product.CreatedBy,
-		product.ModifiedAt,
-		product.ModifiedBy,
-	)
+	dataset := dialect.Insert(goqu.T(constant.TableProducts)).Rows(product)
+
+	query, values, _ := dataset.Prepared(true).ToSQL()
+
+	_, err := r.db.Queryx(query, values...)
+	if err != nil {
+		LogQueryInsert(dataset, "Add Product")
+		return err
+	}
 
 	if err != nil {
 		log.Println(err)
@@ -136,6 +125,11 @@ func (r *productRepository) Update(productID int, product dto.ProductDB) (err er
 	}
 
 	return nil
+}
+
+func LogQueryInsert(dataset *goqu.InsertDataset, name string) {
+	query, _, _ := dataset.Prepared(false).ToSQL()
+	log.Printf("%v: %v", name, query)
 }
 
 func LogQuerySelect(dataset *goqu.SelectDataset, name string) {
