@@ -3,6 +3,7 @@ package repository
 import (
 	"log"
 	"online-store/common/dto"
+	"online-store/common/logger"
 	"online-store/shared/constant"
 
 	"github.com/doug-martin/goqu/v9"
@@ -37,7 +38,7 @@ func (r *productRepository) Add(product dto.ProductDB) error {
 
 	_, err := r.db.Queryx(query, values...)
 	if err != nil {
-		LogQueryInsert(dataset, "Add Product")
+		logger.LogQueryInsert(dataset, "Add Product")
 		return err
 	}
 
@@ -65,7 +66,7 @@ func (r *productRepository) Get(productID int) (output dto.ProductDB, err error)
 	_, err = dataset.ScanStruct(&output)
 
 	if err != nil {
-		LogQuerySelect(dataset, "Get Product")
+		logger.LogQuerySelect(dataset, "Get Product")
 		return output, err
 	}
 
@@ -105,7 +106,7 @@ func (r *productRepository) List(paramSearch ParamSearchProductList) (output dto
 	err = dataset.ScanStructs(&output)
 
 	if err != nil {
-		LogQuerySelect(dataset, "List Product")
+		logger.LogQuerySelect(dataset, "List Product")
 		return output, err
 	}
 
@@ -121,7 +122,7 @@ func (r *productRepository) Delete(productID int) (err error) {
 
 	_, err = r.db.Queryx(query, values...)
 	if err != nil {
-		LogQueryDelete(dataset, "Delete Product")
+		logger.LogQueryDelete(dataset, "Delete Product")
 		return err
 	}
 
@@ -139,29 +140,9 @@ func (r *productRepository) Update(productID int, product dto.ProductDB) (err er
 
 	_, err = r.db.Queryx(query, values...)
 	if err != nil {
-		LogQueryUpdate(dataset, "Update Product")
+		logger.LogQueryUpdate(dataset, "Update Product")
 		return err
 	}
 
 	return nil
-}
-
-func LogQueryInsert(dataset *goqu.InsertDataset, name string) {
-	query, _, _ := dataset.Prepared(false).ToSQL()
-	log.Printf("%v: %v", name, query)
-}
-
-func LogQuerySelect(dataset *goqu.SelectDataset, name string) {
-	query, _, _ := dataset.Prepared(false).ToSQL()
-	log.Printf("%v: %v", name, query)
-}
-
-func LogQueryDelete(dataset *goqu.DeleteDataset, name string) {
-	query, _, _ := dataset.Prepared(false).ToSQL()
-	log.Printf("%v: %v", name, query)
-}
-
-func LogQueryUpdate(dataset *goqu.UpdateDataset, name string) {
-	query, _, _ := dataset.Prepared(false).ToSQL()
-	log.Printf("%v: %v", name, query)
 }
