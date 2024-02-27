@@ -59,6 +59,7 @@ func (r *productRepository) Get(productID int) (output dto.ProductDB, err error)
 			goqu.I("p.stock"),
 			goqu.I("p.price"),
 			goqu.COALESCE(goqu.I("p.image"), "").As("image"),
+			goqu.COALESCE(goqu.I("p.category_id"), 0).As("category_id"),
 		).Where(goqu.I("p.id").Eq(productID))
 
 	_, err = dataset.ScanStruct(&output)
@@ -81,6 +82,7 @@ func (r *productRepository) List() (output dto.ProductDBList, err error) {
 			goqu.I("p.stock"),
 			goqu.I("p.price"),
 			goqu.COALESCE(goqu.I("p.image"), "").As("image"),
+			goqu.COALESCE(goqu.I("p.category_id"), 0).As("category_id"),
 		)
 
 	err = dataset.ScanStructs(&output)

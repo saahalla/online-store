@@ -91,3 +91,14 @@ func (pDB CategoryDB) ToDataJSON() *CategoryData {
 
 	return nil
 }
+
+func (l CategoryDBList) ToDataMapByCategoryID() map[int]CategoryDB {
+
+	output := map[int]CategoryDB{}
+
+	for _, c := range l {
+		output[c.ID] = c
+	}
+
+	return output
+}

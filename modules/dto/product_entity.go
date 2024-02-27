@@ -22,6 +22,10 @@ func (r *AddProductRequest) Validate() (err error) {
 		errStr = append(errStr, "price is required")
 	}
 
+	if r.CategoryID == nil {
+		errStr = append(errStr, "category id is required")
+	}
+
 	if len(errStr) > 0 {
 		return errors.New(strings.Join(errStr, ","))
 	}
@@ -37,6 +41,7 @@ func (r *AddProductRequest) PrepareDataDB() ProductDB {
 		Stock:       *r.Stock,
 		Price:       *r.Price,
 		Image:       r.Image,
+		CategoryID:  *r.CategoryID,
 	}
 
 	productDB.CreatedAt = now
@@ -48,11 +53,13 @@ func (r *AddProductRequest) PrepareDataDB() ProductDB {
 }
 
 // list
-func (l ProductDBList) PrepareDataJSON() (products ProductDataList) {
+func (l ProductDBList) PrepareDataJSON(categories CategoryDBList) (products ProductDataList) {
+
+	mapCategories := categories.ToDataMapByCategoryID()
 
 	for _, pDB := range l {
 
-		pData := pDB.ToDataJSON()
+		pData := pDB.ToDataJSON(mapCategories[pDB.CategoryID].ToDataJSON())
 		if pData != nil {
 			products = append(products, *pData)
 		}
@@ -62,7 +69,7 @@ func (l ProductDBList) PrepareDataJSON() (products ProductDataList) {
 	return products
 }
 
-func (pDB ProductDB) ToDataJSON() *ProductData {
+func (pDB ProductDB) ToDataJSON(category *CategoryData) *ProductData {
 
 	if pDB.ID != 0 {
 		productData := ProductData{
@@ -71,6 +78,10 @@ func (pDB ProductDB) ToDataJSON() *ProductData {
 			Stock:       pDB.Stock,
 			Price:       pDB.Price,
 			Image:       pDB.Image,
+		}
+
+		if category != nil {
+			productData.Category = *category
 		}
 
 		return &productData
@@ -93,6 +104,10 @@ func (r *UpdateProductRequest) Validate() (err error) {
 
 	if r.Price == nil {
 		errStr = append(errStr, "price is required")
+	}
+
+	if r.CategoryID == nil {
+		errStr = append(errStr, "category id is required")
 	}
 
 	if len(errStr) > 0 {
@@ -118,6 +133,10 @@ func (r *UpdateProductRequest) PrepareDataDB(data *ProductDB) {
 
 	if r.Image != "" {
 		data.Image = r.Image
+	}
+
+	if r.CategoryID != nil {
+		data.CategoryID = *r.CategoryID
 	}
 
 	data.ModifiedAt = time.Now()

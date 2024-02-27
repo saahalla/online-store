@@ -11,12 +11,14 @@ import (
 )
 
 type service struct {
-	repo repository.ProductRepository
+	repo         repository.ProductRepository
+	repoCategory repository.CategoryRepository
 }
 
 func NewService(db *sqlx.DB) Service {
 	return &service{
-		repo: repository.NewProductRepo(db),
+		repo:         repository.NewProductRepo(db),
+		repoCategory: repository.NewCategoryRepo(db),
 	}
 }
 
@@ -31,6 +33,12 @@ func (s *service) Add(c *fiber.Ctx) error {
 	err := dataBody.Validate()
 	if err != nil {
 		return err
+	}
+
+	// validate category
+	category, err := s.repoCategory.Get(*dataBody.CategoryID)
+	if err != nil || category.ID == 0 {
+		return fmt.Errorf("category with id %v not found", *dataBody.CategoryID)
 	}
 
 	productDB := dataBody.PrepareDataDB()
@@ -66,6 +74,12 @@ func (s *service) Update(c *fiber.Ctx) error {
 	data, err := s.repo.Get(productID)
 	if err != nil || data.ID == 0 {
 		return fmt.Errorf("product with id %v not found", id)
+	}
+
+	// validate category
+	category, err := s.repoCategory.Get(*dataBody.CategoryID)
+	if err != nil || category.ID == 0 {
+		return fmt.Errorf("category with id %v not found", *dataBody.CategoryID)
 	}
 
 	dataBody.PrepareDataDB(&data)
@@ -111,7 +125,12 @@ func (s *service) Get(c *fiber.Ctx) (output dto.ProductData, err error) {
 		return output, err
 	}
 
-	productData := data.ToDataJSON()
+	category, err := s.repoCategory.Get(data.CategoryID)
+	if err != nil || data.ID == 0 {
+		return output, fmt.Errorf("category with id %v not found", id)
+	}
+
+	productData := data.ToDataJSON(category.ToDataJSON())
 	if productData == nil {
 		return output, fmt.Errorf("product with id %v not found", id)
 	}
@@ -127,7 +146,12 @@ func (s *service) List(c *fiber.Ctx) (output dto.ProductDataList, err error) {
 		return output, err
 	}
 
-	output = products.PrepareDataJSON()
+	categories, err := s.repoCategory.List()
+	if err != nil {
+		return output, err
+	}
+
+	output = products.PrepareDataJSON(categories)
 
 	return output, nil
 }
