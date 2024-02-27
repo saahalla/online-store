@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Get(s Service) fiber.Handler {
+func HandlerGet(s Service) fiber.Handler {
 
 	return func(c *fiber.Ctx) error {
 		resp := dto.DefaultResponse{}
@@ -26,7 +26,7 @@ func Get(s Service) fiber.Handler {
 
 }
 
-func Add(s Service) fiber.Handler {
+func HandlerAdd(s Service) fiber.Handler {
 
 	return func(c *fiber.Ctx) error {
 		resp := dto.DefaultResponse{}
@@ -45,7 +45,7 @@ func Add(s Service) fiber.Handler {
 
 }
 
-func List(s Service) fiber.Handler {
+func HandlerList(s Service) fiber.Handler {
 
 	return func(c *fiber.Ctx) error {
 		resp := dto.DefaultResponse{}
@@ -65,7 +65,7 @@ func List(s Service) fiber.Handler {
 
 }
 
-func Delete(s Service) fiber.Handler {
+func HandlerDelete(s Service) fiber.Handler {
 
 	return func(c *fiber.Ctx) error {
 		resp := dto.DefaultResponse{}
@@ -84,7 +84,7 @@ func Delete(s Service) fiber.Handler {
 
 }
 
-func Update(s Service) fiber.Handler {
+func HandlerUpdate(s Service) fiber.Handler {
 
 	return func(c *fiber.Ctx) error {
 		resp := dto.DefaultResponse{}
