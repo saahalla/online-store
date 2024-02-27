@@ -112,7 +112,7 @@ func (s *service) Delete(c *fiber.Ctx) error {
 
 	return nil
 }
-func (s *service) Get(c *fiber.Ctx) (output dto.ProductData, err error) {
+func (s *service) Get(c *fiber.Ctx) (output dto.ProductDataResp, err error) {
 	id := c.Params("id")
 
 	productID, err := strconv.Atoi(id)
@@ -130,7 +130,7 @@ func (s *service) Get(c *fiber.Ctx) (output dto.ProductData, err error) {
 		return output, fmt.Errorf("category with id %v not found", id)
 	}
 
-	productData := data.ToDataJSON(category.ToDataJSON())
+	productData := data.ToDataJSON(category.ToData())
 	if productData == nil {
 		return output, fmt.Errorf("product with id %v not found", id)
 	}
@@ -139,9 +139,9 @@ func (s *service) Get(c *fiber.Ctx) (output dto.ProductData, err error) {
 
 	return output, nil
 }
-func (s *service) List(c *fiber.Ctx) (output dto.ProductDataList, err error) {
+func (s *service) List(c *fiber.Ctx) (output dto.ProductDataListResp, err error) {
 
-	products, err := s.repo.List()
+	products, err := s.repo.List(repository.ParamSearchProductList{})
 	if err != nil {
 		return output, err
 	}

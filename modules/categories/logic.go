@@ -11,12 +11,14 @@ import (
 )
 
 type service struct {
-	repo repository.CategoryRepository
+	repo         repository.CategoryRepository
+	repoProducts repository.ProductRepository
 }
 
 func NewService(db *sqlx.DB) Service {
 	return &service{
-		repo: repository.NewCategoryRepo(db),
+		repo:         repository.NewCategoryRepo(db),
+		repoProducts: repository.NewProductRepo(db),
 	}
 }
 
@@ -101,7 +103,7 @@ func (s *service) Delete(c *fiber.Ctx) error {
 	return nil
 }
 
-func (s *service) Get(c *fiber.Ctx) (output dto.CategoryData, err error) {
+func (s *service) Get(c *fiber.Ctx) (output dto.CategoryDataResp, err error) {
 	id := c.Params("id")
 
 	categoryID, err := strconv.Atoi(id)
@@ -109,29 +111,44 @@ func (s *service) Get(c *fiber.Ctx) (output dto.CategoryData, err error) {
 		return output, fmt.Errorf("id must integer")
 	}
 
+	// get category
 	data, err := s.repo.Get(categoryID)
 	if err != nil {
 		return output, err
 	}
 
-	categoriesData := data.ToDataJSON()
-	if categoriesData == nil {
+	// get products
+	products, err := s.repoProducts.List(repository.ParamSearchProductList{
+		CategoryID: categoryID,
+	})
+	if err != nil {
+		return output, err
+	}
+
+	categoryData := data.ToDataJSON(products)
+	if categoryData == nil {
 		return output, fmt.Errorf("category with id %v not found", id)
 	}
 
-	output = *categoriesData
+	output = *categoryData
 
 	return output, nil
 }
 
-func (s *service) List(c *fiber.Ctx) (output dto.CategoryDataList, err error) {
+func (s *service) List(c *fiber.Ctx) (output dto.CategoryDataListResp, err error) {
 
 	categories, err := s.repo.List()
 	if err != nil {
 		return output, err
 	}
 
-	output = categories.PrepareDataJSON()
+	// get all products
+	products, err := s.repoProducts.List(repository.ParamSearchProductList{})
+	if err != nil {
+		return output, err
+	}
+
+	output = categories.PrepareDataJSON(products)
 
 	return output, nil
 }

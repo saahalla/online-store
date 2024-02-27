@@ -64,13 +64,15 @@ func (r *UpdateCategoryRequest) PrepareDataDB(data *CategoryDB) {
 }
 
 // list
-func (l CategoryDBList) PrepareDataJSON() (categories CategoryDataList) {
+func (l CategoryDBList) PrepareDataJSON(products ProductDBList) (categories CategoryDataListResp) {
 
-	for _, pDB := range l {
+	mapProductsByCategoryID := products.ToDataMapByCategoryID()
 
-		pData := pDB.ToDataJSON()
-		if pData != nil {
-			categories = append(categories, *pData)
+	for _, catDB := range l {
+
+		catData := catDB.ToDataJSON(mapProductsByCategoryID[catDB.ID])
+		if catData != nil {
+			categories = append(categories, *catData)
 		}
 
 	}
@@ -78,7 +80,25 @@ func (l CategoryDBList) PrepareDataJSON() (categories CategoryDataList) {
 	return categories
 }
 
-func (pDB CategoryDB) ToDataJSON() *CategoryData {
+func (pDB CategoryDB) ToDataJSON(products ProductDBList) *CategoryDataResp {
+
+	if pDB.ID != 0 {
+		categoryData := CategoryDataResp{
+			ID:           pDB.ID,
+			CategoryName: pDB.CategoryName,
+		}
+
+		if len(products) > 0 {
+			categoryData.Products = append(categoryData.Products, products.PrepareData())
+		}
+
+		return &categoryData
+	}
+
+	return nil
+}
+
+func (pDB CategoryDB) ToData() *CategoryData {
 
 	if pDB.ID != 0 {
 		categoryData := CategoryData{

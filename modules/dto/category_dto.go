@@ -13,6 +13,13 @@ type (
 		ID           int    `json:"id"`
 		CategoryName string `json:"category_name"`
 	}
+
+	CategoryDataListResp []CategoryDataResp
+	CategoryDataResp     struct {
+		ID           int               `json:"id"`
+		CategoryName string            `json:"category_name"`
+		Products     []ProductDataList `json:"products"`
+	}
 )
 
 // req resp
@@ -21,13 +28,13 @@ type (
 	// get
 	GetCategoryResponse struct {
 		DefaultResponse
-		Data CategoryData `json:"data"`
+		Data CategoryDataResp `json:"data"`
 	}
 
 	// list
 	ListCategoryResponse struct {
 		DefaultResponse
-		Data CategoryDataList `json:"data"`
+		Data CategoryDataListResp `json:"data"`
 	}
 
 	// add
