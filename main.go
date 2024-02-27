@@ -38,7 +38,7 @@ func main() {
 	// migration
 	err = database.Migration(db)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// Create a Fiber app

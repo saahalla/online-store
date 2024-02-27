@@ -18,6 +18,11 @@ func Migration(db *sqlx.DB) error {
 		return err
 	}
 
+	err = AlterTableProducts(db)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -58,6 +63,19 @@ func CreateTableProducts(db *sqlx.DB) error {
 			modified_at timestamp not null default current_timestamp,
 			modified_by varchar(255)
 		);
+	`
+
+	_, err := db.Exec(products)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func AlterTableProducts(db *sqlx.DB) error {
+	products := `
+		ALTER TABLE products add category_id int; 
 	`
 
 	_, err := db.Exec(products)
