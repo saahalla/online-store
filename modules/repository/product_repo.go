@@ -15,6 +15,8 @@ type ProductRepository interface {
 	Add(product dto.ProductDB) error
 	List() (dto.ProductDBList, error)
 	Get(productID int) (output dto.ProductDB, err error)
+	Delete(productID int) (err error)
+	Update(productID int, product dto.ProductDB) (err error)
 }
 
 type productRepository struct {
@@ -73,7 +75,7 @@ func (r *productRepository) Get(productID int) (output dto.ProductDB, err error)
 	_, err = dataset.ScanStruct(&output)
 
 	if err != nil {
-		LogQuery(dataset, "Get")
+		LogQuerySelect(dataset, "Get Product")
 		return output, err
 	}
 
@@ -95,14 +97,58 @@ func (r *productRepository) List() (output dto.ProductDBList, err error) {
 	err = dataset.ScanStructs(&output)
 
 	if err != nil {
-		LogQuery(dataset, "List")
+		LogQuerySelect(dataset, "List Product")
 		return output, err
 	}
 
 	return output, nil
 }
 
-func LogQuery(dataset *goqu.SelectDataset, name string) {
+func (r *productRepository) Delete(productID int) (err error) {
+	dialect := goqu.New(r.db.DriverName(), r.db)
+
+	dataset := dialect.Delete(goqu.T(constant.TableProducts)).Where(goqu.I("id").Eq(productID))
+
+	query, values, _ := dataset.Prepared(true).ToSQL()
+
+	_, err = r.db.Queryx(query, values...)
+	if err != nil {
+		LogQueryDelete(dataset, "Delete Product")
+		return err
+	}
+
+	return nil
+}
+
+func (r *productRepository) Update(productID int, product dto.ProductDB) (err error) {
+	dialect := goqu.New(r.db.DriverName(), r.db)
+
+	dataset := dialect.Update(goqu.T(constant.TableProducts)).
+		Set(product).
+		Where(goqu.I("id").Eq(productID))
+
+	query, values, _ := dataset.Prepared(true).ToSQL()
+
+	_, err = r.db.Queryx(query, values...)
+	if err != nil {
+		LogQueryUpdate(dataset, "Update Product")
+		return err
+	}
+
+	return nil
+}
+
+func LogQuerySelect(dataset *goqu.SelectDataset, name string) {
+	query, _, _ := dataset.Prepared(false).ToSQL()
+	log.Printf("%v: %v", name, query)
+}
+
+func LogQueryDelete(dataset *goqu.DeleteDataset, name string) {
+	query, _, _ := dataset.Prepared(false).ToSQL()
+	log.Printf("%v: %v", name, query)
+}
+
+func LogQueryUpdate(dataset *goqu.UpdateDataset, name string) {
 	query, _, _ := dataset.Prepared(false).ToSQL()
 	log.Printf("%v: %v", name, query)
 }

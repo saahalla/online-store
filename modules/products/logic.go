@@ -25,7 +25,7 @@ func (s *service) Add(c *fiber.Ctx) error {
 
 	// Parse body into struct
 	if err := c.BodyParser(dataBody); err != nil {
-		return c.Status(400).SendString(err.Error())
+		return err
 	}
 
 	err := dataBody.Validate()
@@ -43,9 +43,59 @@ func (s *service) Add(c *fiber.Ctx) error {
 	return nil
 }
 func (s *service) Update(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	dataBody := new(dto.UpdateProductRequest)
+
+	// Parse body into struct
+	if err := c.BodyParser(dataBody); err != nil {
+		return err
+	}
+
+	err := dataBody.Validate()
+	if err != nil {
+		return err
+	}
+
+	productID, err := strconv.Atoi(id)
+	if err != nil {
+		return fmt.Errorf("id must integer")
+	}
+
+	// validate
+	data, err := s.repo.Get(productID)
+	if err != nil || data.ID == 0 {
+		return fmt.Errorf("product with id %v not found", id)
+	}
+
+	dataBody.PrepareDataDB(&data)
+
+	err = s.repo.Update(productID, data)
+	if err != nil {
+		return fmt.Errorf("failed to update product with id %v", productID)
+	}
+
 	return nil
 }
 func (s *service) Delete(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	productID, err := strconv.Atoi(id)
+	if err != nil {
+		return fmt.Errorf("id must integer")
+	}
+
+	// validate
+	data, err := s.repo.Get(productID)
+	if err != nil || data.ID == 0 {
+		return fmt.Errorf("product with id %v not found", id)
+	}
+
+	err = s.repo.Delete(productID)
+	if err != nil {
+		return fmt.Errorf("failed to delete product with id %v", productID)
+	}
+
 	return nil
 }
 func (s *service) Get(c *fiber.Ctx) (output dto.ProductData, err error) {
