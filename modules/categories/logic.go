@@ -1,4 +1,4 @@
-package products
+package categories
 
 import (
 	"fmt"
@@ -11,17 +11,17 @@ import (
 )
 
 type service struct {
-	repo repository.ProductRepository
+	repo repository.CategoryRepository
 }
 
 func NewService(db *sqlx.DB) Service {
 	return &service{
-		repo: repository.NewProductRepo(db),
+		repo: repository.NewCategoryRepo(db),
 	}
 }
 
 func (s *service) Add(c *fiber.Ctx) error {
-	dataBody := new(dto.AddProductRequest)
+	dataBody := new(dto.AddCategoryRequest)
 
 	// Parse body into struct
 	if err := c.BodyParser(dataBody); err != nil {
@@ -33,19 +33,20 @@ func (s *service) Add(c *fiber.Ctx) error {
 		return err
 	}
 
-	productDB := dataBody.PrepareDataDB()
+	categoryDB := dataBody.PrepareDataDB()
 
-	err = s.repo.Add(productDB)
+	err = s.repo.Add(categoryDB)
 	if err != nil {
 		return err
 	}
 
 	return nil
 }
+
 func (s *service) Update(c *fiber.Ctx) error {
 	id := c.Params("id")
 
-	dataBody := new(dto.UpdateProductRequest)
+	dataBody := new(dto.UpdateCategoryRequest)
 
 	// Parse body into struct
 	if err := c.BodyParser(dataBody); err != nil {
@@ -57,77 +58,80 @@ func (s *service) Update(c *fiber.Ctx) error {
 		return err
 	}
 
-	productID, err := strconv.Atoi(id)
+	categoryID, err := strconv.Atoi(id)
 	if err != nil {
 		return fmt.Errorf("id must integer")
 	}
 
 	// validate
-	data, err := s.repo.Get(productID)
+	data, err := s.repo.Get(categoryID)
 	if err != nil || data.ID == 0 {
-		return fmt.Errorf("product with id %v not found", id)
+		return fmt.Errorf("category with id %v not found", id)
 	}
 
 	dataBody.PrepareDataDB(&data)
 
-	err = s.repo.Update(productID, data)
+	err = s.repo.Update(categoryID, data)
 	if err != nil {
-		return fmt.Errorf("failed to update product with id %v", productID)
+		return fmt.Errorf("failed to update category with id %v", categoryID)
 	}
 
 	return nil
 }
+
 func (s *service) Delete(c *fiber.Ctx) error {
 	id := c.Params("id")
 
-	productID, err := strconv.Atoi(id)
+	categoryID, err := strconv.Atoi(id)
 	if err != nil {
 		return fmt.Errorf("id must integer")
 	}
 
 	// validate
-	data, err := s.repo.Get(productID)
+	data, err := s.repo.Get(categoryID)
 	if err != nil || data.ID == 0 {
-		return fmt.Errorf("product with id %v not found", id)
+		return fmt.Errorf("category with id %v not found", id)
 	}
 
-	err = s.repo.Delete(productID)
+	err = s.repo.Delete(categoryID)
 	if err != nil {
-		return fmt.Errorf("failed to delete product with id %v", productID)
+		return fmt.Errorf("failed to delete category with id %v", categoryID)
 	}
 
 	return nil
 }
-func (s *service) Get(c *fiber.Ctx) (output dto.ProductData, err error) {
+
+func (s *service) Get(c *fiber.Ctx) (output dto.CategoryData, err error) {
 	id := c.Params("id")
 
-	productID, err := strconv.Atoi(id)
+	categoryID, err := strconv.Atoi(id)
 	if err != nil {
 		return output, fmt.Errorf("id must integer")
 	}
 
-	data, err := s.repo.Get(productID)
+	data, err := s.repo.Get(categoryID)
 	if err != nil {
 		return output, err
 	}
 
-	productData := data.ToDataJSON()
-	if productData == nil {
-		return output, fmt.Errorf("product with id %v not found", id)
+	categoriesData := data.ToDataJSON()
+	if categoriesData == nil {
+		return output, fmt.Errorf("category with id %v not found", id)
 	}
 
-	output = *productData
+	output = *categoriesData
 
 	return output, nil
 }
-func (s *service) List(c *fiber.Ctx) (output dto.ProductDataList, err error) {
 
-	products, err := s.repo.List()
+func (s *service) List(c *fiber.Ctx) (output dto.CategoryDataList, err error) {
+
+	categories, err := s.repo.List()
 	if err != nil {
 		return output, err
 	}
 
-	output = products.PrepareDataJSON()
+	output = categories.PrepareDataJSON()
 
 	return output, nil
 }

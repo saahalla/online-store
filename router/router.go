@@ -3,6 +3,7 @@ package router
 import (
 	"log"
 	"online-store/database"
+	"online-store/modules/categories"
 	"online-store/modules/products"
 
 	"github.com/gofiber/fiber/v2"
@@ -42,6 +43,16 @@ func SetupRoutes(app *fiber.App) {
 	product.Post("/", products.Add(productServices))
 	product.Delete("/:id", products.Delete(productServices))
 	product.Put("/:id", products.Update(productServices))
+
+	// Category
+	category := api.Group("/category")
+	categoryServices := categories.NewService(db)
+
+	category.Get("/", categories.List(categoryServices))
+	category.Get("/:id", categories.Get(categoryServices))
+	category.Post("/", categories.Add(categoryServices))
+	category.Delete("/:id", categories.Delete(categoryServices))
+	category.Put("/:id", categories.Update(categoryServices))
 
 	// product.Get("/", handler.GetAllProducts)
 	// product.Get("/:id", handler.GetProduct)
