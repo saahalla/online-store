@@ -40,6 +40,7 @@ func SetupRoutes(app *fiber.App) {
 	product.Get("/", products.List(productServices))
 	product.Get("/:id", products.Get(productServices))
 	product.Post("/", products.Add(productServices))
+	product.Delete("/:id", products.Delete(productServices))
 
 	// product.Get("/", handler.GetAllProducts)
 	// product.Get("/:id", handler.GetProduct)

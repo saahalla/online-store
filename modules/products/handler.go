@@ -9,9 +9,9 @@ import (
 func Get(s Service) fiber.Handler {
 
 	return func(c *fiber.Ctx) error {
-		data, err := s.Get(c)
 		resp := dto.DefaultResponse{}
 
+		data, err := s.Get(c)
 		if err != nil {
 			resp.PrepareStatusFailed(err.Error())
 			return c.Status(fiber.StatusUnprocessableEntity).JSON(resp)
@@ -29,9 +29,9 @@ func Get(s Service) fiber.Handler {
 func Add(s Service) fiber.Handler {
 
 	return func(c *fiber.Ctx) error {
-		err := s.Add(c)
 		resp := dto.DefaultResponse{}
 
+		err := s.Add(c)
 		if err != nil {
 			resp.PrepareStatusFailed(err.Error())
 			return c.Status(fiber.StatusUnprocessableEntity).JSON(resp)
@@ -48,9 +48,9 @@ func Add(s Service) fiber.Handler {
 func List(s Service) fiber.Handler {
 
 	return func(c *fiber.Ctx) error {
-		data, err := s.List(c)
 		resp := dto.DefaultResponse{}
 
+		data, err := s.List(c)
 		if err != nil {
 			resp.PrepareStatusFailed(err.Error())
 			return c.Status(fiber.StatusUnprocessableEntity).JSON(resp)
@@ -60,6 +60,25 @@ func List(s Service) fiber.Handler {
 		return c.JSON(dto.ListProductResponse{
 			DefaultResponse: resp,
 			Data:            data,
+		})
+	}
+
+}
+
+func Delete(s Service) fiber.Handler {
+
+	return func(c *fiber.Ctx) error {
+		resp := dto.DefaultResponse{}
+
+		err := s.Delete(c)
+		if err != nil {
+			resp.PrepareStatusFailed(err.Error())
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(resp)
+		}
+
+		resp.PrepareStatusSuccess("success delete product")
+		return c.JSON(dto.DeleteProductResponse{
+			DefaultResponse: resp,
 		})
 	}
 

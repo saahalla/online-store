@@ -49,4 +49,9 @@ type (
 	AddProductResponse struct {
 		DefaultResponse
 	}
+
+	// delete
+	DeleteProductResponse struct {
+		DefaultResponse
+	}
 )

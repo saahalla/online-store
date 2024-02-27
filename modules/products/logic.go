@@ -46,6 +46,24 @@ func (s *service) Update(c *fiber.Ctx) error {
 	return nil
 }
 func (s *service) Delete(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	productID, err := strconv.Atoi(id)
+	if err != nil {
+		return fmt.Errorf("id must integer")
+	}
+
+	// validate
+	data, err := s.repo.Get(productID)
+	if err != nil || data.ID == 0 {
+		return fmt.Errorf("product with id %v not found", id)
+	}
+
+	err = s.repo.Delete(productID)
+	if err != nil {
+		return fmt.Errorf("failed to delete product with id %v", productID)
+	}
+
 	return nil
 }
 func (s *service) Get(c *fiber.Ctx) (output dto.ProductData, err error) {
