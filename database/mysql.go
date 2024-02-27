@@ -47,7 +47,7 @@ func Connect() error {
 
 	var err error
 	// Use DSN string to open
-	DB, err = sqlx.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?parseTime=true", user, password, host, port, dbname))
+	DB, err = sqlx.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?multiStatements=true&parseTime=true&charset=utf8;", user, password, host, port, dbname))
 	if err != nil {
 		return err
 	}

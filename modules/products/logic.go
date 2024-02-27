@@ -50,5 +50,13 @@ func (s *service) Get(c *fiber.Ctx) (output dto.ProductData, err error) {
 	return output, nil
 }
 func (s *service) List(c *fiber.Ctx) (output dto.ProductDataList, err error) {
+
+	products, err := s.repo.List()
+	if err != nil {
+		return output, err
+	}
+
+	output = products.PrepareDataJSON()
+
 	return output, nil
 }

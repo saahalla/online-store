@@ -44,3 +44,23 @@ func Add(s Service) fiber.Handler {
 	}
 
 }
+
+func List(s Service) fiber.Handler {
+
+	return func(c *fiber.Ctx) error {
+		data, err := s.List(c)
+		resp := dto.DefaultResponse{}
+
+		if err != nil {
+			resp.PrepareStatusFailed(err.Error())
+			return c.Status(fiber.StatusUnprocessableEntity).JSON(resp)
+		}
+
+		resp.PrepareStatusSuccess("success get list")
+		return c.JSON(dto.ListProductResponse{
+			DefaultResponse: resp,
+			Data:            data,
+		})
+	}
+
+}

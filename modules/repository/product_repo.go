@@ -4,12 +4,16 @@ import (
 	"context"
 	"log"
 	"online-store/modules/dto"
+	"online-store/shared/constant"
 
+	"github.com/doug-martin/goqu/v9"
+	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
 type ProductRepository interface {
 	Add(product dto.ProductDB) error
+	List() (dto.ProductDBList, error)
 }
 
 type productRepository struct {
@@ -51,4 +55,31 @@ func (r *productRepository) Add(product dto.ProductDB) error {
 	}
 
 	return nil
+}
+
+func (r *productRepository) List() (output dto.ProductDBList, err error) {
+	dialect := goqu.New(r.db.DriverName(), r.db)
+
+	dataset := dialect.From(goqu.T(constant.TableProducts).As("p")).
+		Select(
+			goqu.I("p.id"),
+			goqu.I("p.product_name"),
+			goqu.I("p.stock"),
+			goqu.I("p.price"),
+			goqu.COALESCE(goqu.I("p.image"), "").As("image"),
+		)
+
+	err = dataset.ScanStructs(&output)
+
+	if err != nil {
+		LogQuery(dataset, "List")
+		return output, err
+	}
+
+	return output, nil
+}
+
+func LogQuery(dataset *goqu.SelectDataset, name string) {
+	query, _, _ := dataset.Prepared(false).ToSQL()
+	log.Printf("%v: %v", name, query)
 }

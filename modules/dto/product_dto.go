@@ -1,7 +1,8 @@
 package dto
 
 type (
-	ProductDB struct {
+	ProductDBList []ProductDB
+	ProductDB     struct {
 		ID          int     `db:"id" goqu:"skipinsert"`
 		ProductName string  `db:"product_name"`
 		Stock       int     `db:"stock"`
@@ -24,9 +25,16 @@ type (
 // req resp
 
 type (
+	// get
 	GetProductResponse struct {
 		DefaultResponse
 		Data ProductData `json:"data"`
+	}
+
+	// list
+	ListProductResponse struct {
+		DefaultResponse
+		Data ProductDataList `json:"data"`
 	}
 
 	// add

@@ -45,3 +45,22 @@ func (r *AddProductRequest) PrepareDataDB() ProductDB {
 
 	return productDB
 }
+
+// list
+func (l ProductDBList) PrepareDataJSON() (products ProductDataList) {
+
+	for _, pDB := range l {
+
+		pData := ProductData{
+			ID:          pDB.ID,
+			ProductName: pDB.ProductName,
+			Stock:       pDB.Stock,
+			Price:       pDB.Price,
+			Image:       pDB.Image,
+		}
+
+		products = append(products, pData)
+	}
+
+	return products
+}
