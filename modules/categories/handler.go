@@ -1,4 +1,4 @@
-package products
+package categories
 
 import (
 	"online-store/common/dto"
@@ -18,7 +18,7 @@ func Get(s Service) fiber.Handler {
 		}
 
 		resp.PrepareStatusSuccess("success get data")
-		return c.JSON(dto.GetProductResponse{
+		return c.JSON(dto.GetCategoryResponse{
 			DefaultResponse: resp,
 			Data:            data,
 		})
@@ -37,8 +37,8 @@ func Add(s Service) fiber.Handler {
 			return c.Status(fiber.StatusUnprocessableEntity).JSON(resp)
 		}
 
-		resp.PrepareStatusSuccess("success add product")
-		return c.JSON(dto.AddProductResponse{
+		resp.PrepareStatusSuccess("success add category")
+		return c.JSON(dto.AddCategoryResponse{
 			DefaultResponse: resp,
 		})
 	}
@@ -57,7 +57,7 @@ func List(s Service) fiber.Handler {
 		}
 
 		resp.PrepareStatusSuccess("success get list")
-		return c.JSON(dto.ListProductResponse{
+		return c.JSON(dto.ListCategoryResponse{
 			DefaultResponse: resp,
 			Data:            data,
 		})
@@ -76,8 +76,8 @@ func Delete(s Service) fiber.Handler {
 			return c.Status(fiber.StatusUnprocessableEntity).JSON(resp)
 		}
 
-		resp.PrepareStatusSuccess("success delete product")
-		return c.JSON(dto.DeleteProductResponse{
+		resp.PrepareStatusSuccess("success delete category")
+		return c.JSON(dto.DeleteCategoryResponse{
 			DefaultResponse: resp,
 		})
 	}
@@ -95,8 +95,8 @@ func Update(s Service) fiber.Handler {
 			return c.Status(fiber.StatusUnprocessableEntity).JSON(resp)
 		}
 
-		resp.PrepareStatusSuccess("success update product")
-		return c.JSON(dto.UpdateProductResponse{
+		resp.PrepareStatusSuccess("success update category")
+		return c.JSON(dto.UpdateCategoryResponse{
 			DefaultResponse: resp,
 		})
 	}

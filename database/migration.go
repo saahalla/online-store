@@ -13,6 +13,16 @@ func Migration(db *sqlx.DB) error {
 		return err
 	}
 
+	err = CreateTableCategories(db)
+	if err != nil {
+		return err
+	}
+
+	err = AlterTableProducts(db)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -56,6 +66,39 @@ func CreateTableProducts(db *sqlx.DB) error {
 	`
 
 	_, err := db.Exec(products)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func AlterTableProducts(db *sqlx.DB) error {
+	products := `
+		ALTER TABLE products add category_id int; 
+	`
+
+	_, err := db.Exec(products)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func CreateTableCategories(db *sqlx.DB) error {
+	categories := `
+		CREATE TABLE IF NOT EXISTS categories (
+			id int AUTO_INCREMENT not null PRIMARY KEY,
+			category_name varchar(255) not null,
+			created_at timestamp not null default current_timestamp,
+			created_by varchar(255),
+			modified_at timestamp not null default current_timestamp,
+			modified_by varchar(255)
+		);
+	  `
+
+	_, err := db.Exec(categories)
 	if err != nil {
 		return err
 	}

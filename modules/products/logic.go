@@ -2,8 +2,8 @@ package products
 
 import (
 	"fmt"
-	"online-store/modules/dto"
-	"online-store/modules/repository"
+	"online-store/common/dto"
+	"online-store/common/repository"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,12 +11,14 @@ import (
 )
 
 type service struct {
-	repo repository.ProductRepository
+	repo         repository.ProductRepository
+	repoCategory repository.CategoryRepository
 }
 
 func NewService(db *sqlx.DB) Service {
 	return &service{
-		repo: repository.NewProductRepo(db),
+		repo:         repository.NewProductRepo(db),
+		repoCategory: repository.NewCategoryRepo(db),
 	}
 }
 
@@ -31,6 +33,12 @@ func (s *service) Add(c *fiber.Ctx) error {
 	err := dataBody.Validate()
 	if err != nil {
 		return err
+	}
+
+	// validate category
+	category, err := s.repoCategory.Get(*dataBody.CategoryID)
+	if err != nil || category.ID == 0 {
+		return fmt.Errorf("category with id %v not found", *dataBody.CategoryID)
 	}
 
 	productDB := dataBody.PrepareDataDB()
@@ -68,6 +76,12 @@ func (s *service) Update(c *fiber.Ctx) error {
 		return fmt.Errorf("product with id %v not found", id)
 	}
 
+	// validate category
+	category, err := s.repoCategory.Get(*dataBody.CategoryID)
+	if err != nil || category.ID == 0 {
+		return fmt.Errorf("category with id %v not found", *dataBody.CategoryID)
+	}
+
 	dataBody.PrepareDataDB(&data)
 
 	err = s.repo.Update(productID, data)
@@ -98,7 +112,7 @@ func (s *service) Delete(c *fiber.Ctx) error {
 
 	return nil
 }
-func (s *service) Get(c *fiber.Ctx) (output dto.ProductData, err error) {
+func (s *service) Get(c *fiber.Ctx) (output dto.ProductDataResp, err error) {
 	id := c.Params("id")
 
 	productID, err := strconv.Atoi(id)
@@ -111,21 +125,33 @@ func (s *service) Get(c *fiber.Ctx) (output dto.ProductData, err error) {
 		return output, err
 	}
 
-	productData := data.ToDataJSON()
+	category, err := s.repoCategory.Get(data.CategoryID)
+	if err != nil || data.ID == 0 {
+		return output, fmt.Errorf("category with id %v not found", id)
+	}
+
+	productData := data.ToDataJSON(category.ToData())
 	if productData == nil {
 		return output, fmt.Errorf("product with id %v not found", id)
 	}
 
+	output = *productData
+
 	return output, nil
 }
-func (s *service) List(c *fiber.Ctx) (output dto.ProductDataList, err error) {
+func (s *service) List(c *fiber.Ctx) (output dto.ProductDataListResp, err error) {
 
-	products, err := s.repo.List()
+	products, err := s.repo.List(repository.ParamSearchProductList{})
 	if err != nil {
 		return output, err
 	}
 
-	output = products.PrepareDataJSON()
+	categories, err := s.repoCategory.List()
+	if err != nil {
+		return output, err
+	}
+
+	output = products.PrepareDataJSON(categories)
 
 	return output, nil
 }

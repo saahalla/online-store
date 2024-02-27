@@ -22,6 +22,10 @@ func (r *AddProductRequest) Validate() (err error) {
 		errStr = append(errStr, "price is required")
 	}
 
+	if r.CategoryID == nil {
+		errStr = append(errStr, "category id is required")
+	}
+
 	if len(errStr) > 0 {
 		return errors.New(strings.Join(errStr, ","))
 	}
@@ -37,6 +41,7 @@ func (r *AddProductRequest) PrepareDataDB() ProductDB {
 		Stock:       *r.Stock,
 		Price:       *r.Price,
 		Image:       r.Image,
+		CategoryID:  *r.CategoryID,
 	}
 
 	productDB.CreatedAt = now
@@ -48,11 +53,13 @@ func (r *AddProductRequest) PrepareDataDB() ProductDB {
 }
 
 // list
-func (l ProductDBList) PrepareDataJSON() (products ProductDataList) {
+func (l ProductDBList) PrepareDataJSON(categories CategoryDBList) (products ProductDataListResp) {
+
+	mapCategories := categories.ToDataMapByCategoryID()
 
 	for _, pDB := range l {
 
-		pData := pDB.ToDataJSON()
+		pData := pDB.ToDataJSON(mapCategories[pDB.CategoryID].ToData())
 		if pData != nil {
 			products = append(products, *pData)
 		}
@@ -62,7 +69,52 @@ func (l ProductDBList) PrepareDataJSON() (products ProductDataList) {
 	return products
 }
 
-func (pDB ProductDB) ToDataJSON() *ProductData {
+func (l ProductDBList) PrepareData() (products ProductDataList) {
+
+	for _, pDB := range l {
+
+		pData := pDB.ToData()
+		if pData != nil {
+			products = append(products, *pData)
+		}
+
+	}
+
+	return products
+}
+
+func (l ProductDBList) ToDataMapByCategoryID() map[int]ProductDBList {
+	output := map[int]ProductDBList{}
+
+	for _, p := range l {
+		output[p.CategoryID] = append(output[p.CategoryID], p)
+	}
+
+	return output
+}
+
+func (pDB ProductDB) ToDataJSON(category *CategoryData) *ProductDataResp {
+
+	if pDB.ID != 0 {
+		productData := ProductDataResp{
+			ID:          pDB.ID,
+			ProductName: pDB.ProductName,
+			Stock:       pDB.Stock,
+			Price:       pDB.Price,
+			Image:       pDB.Image,
+		}
+
+		if category != nil {
+			productData.Category = *category
+		}
+
+		return &productData
+	}
+
+	return nil
+}
+
+func (pDB ProductDB) ToData() *ProductData {
 
 	if pDB.ID != 0 {
 		productData := ProductData{
@@ -95,6 +147,10 @@ func (r *UpdateProductRequest) Validate() (err error) {
 		errStr = append(errStr, "price is required")
 	}
 
+	if r.CategoryID == nil {
+		errStr = append(errStr, "category id is required")
+	}
+
 	if len(errStr) > 0 {
 		return errors.New(strings.Join(errStr, ","))
 	}
@@ -118,6 +174,10 @@ func (r *UpdateProductRequest) PrepareDataDB(data *ProductDB) {
 
 	if r.Image != "" {
 		data.Image = r.Image
+	}
+
+	if r.CategoryID != nil {
+		data.CategoryID = *r.CategoryID
 	}
 
 	data.ModifiedAt = time.Now()

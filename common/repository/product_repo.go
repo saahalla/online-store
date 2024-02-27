@@ -2,7 +2,7 @@ package repository
 
 import (
 	"log"
-	"online-store/modules/dto"
+	"online-store/common/dto"
 	"online-store/shared/constant"
 
 	"github.com/doug-martin/goqu/v9"
@@ -12,7 +12,7 @@ import (
 
 type ProductRepository interface {
 	Add(product dto.ProductDB) error
-	List() (dto.ProductDBList, error)
+	List(paramSearch ParamSearchProductList) (output dto.ProductDBList, err error)
 	Get(productID int) (output dto.ProductDB, err error)
 	Delete(productID int) (err error)
 	Update(productID int, product dto.ProductDB) (err error)
@@ -59,6 +59,7 @@ func (r *productRepository) Get(productID int) (output dto.ProductDB, err error)
 			goqu.I("p.stock"),
 			goqu.I("p.price"),
 			goqu.COALESCE(goqu.I("p.image"), "").As("image"),
+			goqu.COALESCE(goqu.I("p.category_id"), 0).As("category_id"),
 		).Where(goqu.I("p.id").Eq(productID))
 
 	_, err = dataset.ScanStruct(&output)
@@ -71,7 +72,12 @@ func (r *productRepository) Get(productID int) (output dto.ProductDB, err error)
 	return output, nil
 }
 
-func (r *productRepository) List() (output dto.ProductDBList, err error) {
+type ParamSearchProductList struct {
+	ProductName string
+	CategoryID  int
+}
+
+func (r *productRepository) List(paramSearch ParamSearchProductList) (output dto.ProductDBList, err error) {
 	dialect := goqu.New(r.db.DriverName(), r.db)
 
 	dataset := dialect.From(goqu.T(constant.TableProducts).As("p")).
@@ -81,7 +87,20 @@ func (r *productRepository) List() (output dto.ProductDBList, err error) {
 			goqu.I("p.stock"),
 			goqu.I("p.price"),
 			goqu.COALESCE(goqu.I("p.image"), "").As("image"),
+			goqu.COALESCE(goqu.I("p.category_id"), 0).As("category_id"),
 		)
+
+	if paramSearch.ProductName != "" {
+		dataset = dataset.Where(
+			goqu.I("p.product_name").ILike("%" + paramSearch.ProductName + "%"),
+		)
+	}
+
+	if paramSearch.CategoryID != 0 {
+		dataset = dataset.Where(
+			goqu.I("p.category_id").Eq(paramSearch.CategoryID),
+		)
+	}
 
 	err = dataset.ScanStructs(&output)
 

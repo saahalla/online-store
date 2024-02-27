@@ -1,4 +1,4 @@
-package products
+package categories
 
 import (
 	"online-store/common/dto"
@@ -10,6 +10,6 @@ type Service interface {
 	Add(c *fiber.Ctx) error
 	Update(c *fiber.Ctx) error
 	Delete(c *fiber.Ctx) error
-	Get(c *fiber.Ctx) (dto.ProductDataResp, error)
-	List(c *fiber.Ctx) (dto.ProductDataListResp, error)
+	Get(c *fiber.Ctx) (dto.CategoryDataResp, error)
+	List(c *fiber.Ctx) (dto.CategoryDataListResp, error)
 }
