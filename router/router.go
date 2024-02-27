@@ -35,24 +35,24 @@ func SetupRoutes(app *fiber.App) {
 	// user.Delete("/:id", middleware.Protected(), handler.DeleteUser)
 
 	// Product
-	product := api.Group("/product")
+	productApi := api.Group("/product")
 	productServices := products.NewService(db)
 
-	product.Get("/", products.List(productServices))
-	product.Get("/:id", products.Get(productServices))
-	product.Post("/", products.Add(productServices))
-	product.Delete("/:id", products.Delete(productServices))
-	product.Put("/:id", products.Update(productServices))
+	productApi.Get("/", products.HandlerList(productServices))
+	productApi.Get("/:id", products.HandlerGet(productServices))
+	productApi.Post("/", products.HandlerAdd(productServices))
+	productApi.Delete("/:id", products.HandlerDelete(productServices))
+	productApi.Put("/:id", products.HandlerUpdate(productServices))
 
 	// Category
-	category := api.Group("/category")
+	categoryApi := api.Group("/category")
 	categoryServices := categories.NewService(db)
 
-	category.Get("/", categories.List(categoryServices))
-	category.Get("/:id", categories.Get(categoryServices))
-	category.Post("/", categories.Add(categoryServices))
-	category.Delete("/:id", categories.Delete(categoryServices))
-	category.Put("/:id", categories.Update(categoryServices))
+	categoryApi.Get("/", categories.HandlerList(categoryServices))
+	categoryApi.Get("/:id", categories.HandlerGet(categoryServices))
+	categoryApi.Post("/", categories.HandlerAdd(categoryServices))
+	categoryApi.Delete("/:id", categories.HandlerDelete(categoryServices))
+	categoryApi.Put("/:id", categories.HandlerUpdate(categoryServices))
 
 	// product.Get("/", handler.GetAllProducts)
 	// product.Get("/:id", handler.GetProduct)
