@@ -14,6 +14,7 @@ import (
 type ProductRepository interface {
 	Add(product dto.ProductDB) error
 	List() (dto.ProductDBList, error)
+	Get(productID int) (output dto.ProductDB, err error)
 }
 
 type productRepository struct {
@@ -55,6 +56,28 @@ func (r *productRepository) Add(product dto.ProductDB) error {
 	}
 
 	return nil
+}
+
+func (r *productRepository) Get(productID int) (output dto.ProductDB, err error) {
+	dialect := goqu.New(r.db.DriverName(), r.db)
+
+	dataset := dialect.From(goqu.T(constant.TableProducts).As("p")).
+		Select(
+			goqu.I("p.id"),
+			goqu.I("p.product_name"),
+			goqu.I("p.stock"),
+			goqu.I("p.price"),
+			goqu.COALESCE(goqu.I("p.image"), "").As("image"),
+		).Where(goqu.I("p.id").Eq(productID))
+
+	_, err = dataset.ScanStruct(&output)
+
+	if err != nil {
+		LogQuery(dataset, "Get")
+		return output, err
+	}
+
+	return output, nil
 }
 
 func (r *productRepository) List() (output dto.ProductDBList, err error) {

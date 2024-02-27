@@ -51,7 +51,20 @@ func (l ProductDBList) PrepareDataJSON() (products ProductDataList) {
 
 	for _, pDB := range l {
 
-		pData := ProductData{
+		pData := pDB.ToDataJSON()
+		if pData != nil {
+			products = append(products, *pData)
+		}
+
+	}
+
+	return products
+}
+
+func (pDB ProductDB) ToDataJSON() *ProductData {
+
+	if pDB.ID != 0 {
+		productData := ProductData{
 			ID:          pDB.ID,
 			ProductName: pDB.ProductName,
 			Stock:       pDB.Stock,
@@ -59,8 +72,8 @@ func (l ProductDBList) PrepareDataJSON() (products ProductDataList) {
 			Image:       pDB.Image,
 		}
 
-		products = append(products, pData)
+		return &productData
 	}
 
-	return products
+	return nil
 }

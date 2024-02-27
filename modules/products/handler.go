@@ -13,7 +13,7 @@ func Get(s Service) fiber.Handler {
 		resp := dto.DefaultResponse{}
 
 		if err != nil {
-			resp.PrepareStatusNotFound(err.Error())
+			resp.PrepareStatusFailed(err.Error())
 			return c.Status(fiber.StatusUnprocessableEntity).JSON(resp)
 		}
 
