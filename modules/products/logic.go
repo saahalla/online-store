@@ -2,8 +2,8 @@ package products
 
 import (
 	"fmt"
-	"online-store/modules/dto"
-	"online-store/modules/repository"
+	"online-store/common/dto"
+	"online-store/common/repository"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"

@@ -1,7 +1,7 @@
 package products
 
 import (
-	"online-store/modules/dto"
+	"online-store/common/dto"
 
 	"github.com/gofiber/fiber/v2"
 )

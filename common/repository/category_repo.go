@@ -2,7 +2,7 @@ package repository
 
 import (
 	"log"
-	"online-store/modules/dto"
+	"online-store/common/dto"
 	"online-store/shared/constant"
 
 	"github.com/doug-martin/goqu/v9"
