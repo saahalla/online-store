@@ -20,7 +20,7 @@ func (r *AddCategoryRequest) Validate() (err error) {
 	return nil
 }
 
-func (r *AddCategoryRequest) PrepareDataDB() CategoryDB {
+func (r *AddCategoryRequest) PrepareDataDB(username string) CategoryDB {
 	now := time.Now()
 
 	categoryDB := CategoryDB{
@@ -28,9 +28,9 @@ func (r *AddCategoryRequest) PrepareDataDB() CategoryDB {
 	}
 
 	categoryDB.CreatedAt = now
-	categoryDB.CreatedBy = "test"
+	categoryDB.CreatedBy = username
 	categoryDB.ModifiedAt = now
-	categoryDB.ModifiedBy = "test"
+	categoryDB.ModifiedBy = username
 
 	return categoryDB
 }
@@ -50,17 +50,14 @@ func (r *UpdateCategoryRequest) Validate() (err error) {
 	return nil
 }
 
-func (r *UpdateCategoryRequest) PrepareDataDB(data *CategoryDB) {
+func (r *UpdateCategoryRequest) PrepareDataDB(data *CategoryDB, username string) {
 
 	if r.CategoryName != "" {
 		data.CategoryName = r.CategoryName
 	}
 
 	data.ModifiedAt = time.Now()
-
-	// if r.CategoryID != nil {
-	// 	data.CategoryID = r.CategoryID
-	// }
+	data.ModifiedBy = username
 }
 
 // list

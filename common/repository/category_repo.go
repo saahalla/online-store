@@ -3,6 +3,7 @@ package repository
 import (
 	"log"
 	"online-store/common/dto"
+	"online-store/common/logger"
 	"online-store/shared/constant"
 
 	"github.com/doug-martin/goqu/v9"
@@ -37,7 +38,7 @@ func (r *categoryRepository) Add(category dto.CategoryDB) error {
 
 	_, err := r.db.Queryx(query, values...)
 	if err != nil {
-		LogQueryInsert(dataset, "Add Category")
+		logger.LogQueryInsert(dataset, "Add Category")
 		return err
 	}
 
@@ -61,7 +62,7 @@ func (r *categoryRepository) Get(categoryID int) (output dto.CategoryDB, err err
 	_, err = dataset.ScanStruct(&output)
 
 	if err != nil {
-		LogQuerySelect(dataset, "Get Category")
+		logger.LogQuerySelect(dataset, "Get Category")
 		return output, err
 	}
 
@@ -80,7 +81,7 @@ func (r *categoryRepository) List() (output dto.CategoryDBList, err error) {
 	err = dataset.ScanStructs(&output)
 
 	if err != nil {
-		LogQuerySelect(dataset, "List Category")
+		logger.LogQuerySelect(dataset, "List Category")
 		return output, err
 	}
 
@@ -96,7 +97,7 @@ func (r *categoryRepository) Delete(categoryID int) (err error) {
 
 	_, err = r.db.Queryx(query, values...)
 	if err != nil {
-		LogQueryDelete(dataset, "Delete Category")
+		logger.LogQueryDelete(dataset, "Delete Category")
 		return err
 	}
 
@@ -114,7 +115,7 @@ func (r *categoryRepository) Update(categoryID int, category dto.CategoryDB) (er
 
 	_, err = r.db.Queryx(query, values...)
 	if err != nil {
-		LogQueryUpdate(dataset, "Update Category")
+		logger.LogQueryUpdate(dataset, "Update Category")
 		return err
 	}
 

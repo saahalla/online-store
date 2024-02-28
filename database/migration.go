@@ -34,7 +34,7 @@ func CreateTableUsers(db *sqlx.DB) error {
 			password varchar(255) not null,
 			email varchar(255) not null,
 			phone varchar(255),
-			user_role_id int not null,
+			user_role_id int not null default 0,
 			created_at timestamp not null default current_timestamp,
 			created_by varchar(255),
 			modified_at timestamp not null default current_timestamp,

@@ -2,7 +2,9 @@ package router
 
 import (
 	"log"
+	"online-store/common/middleware"
 	"online-store/database"
+	"online-store/modules/auth"
 	"online-store/modules/categories"
 	"online-store/modules/products"
 
@@ -24,15 +26,11 @@ func SetupRoutes(app *fiber.App) {
 	// api.Get("/", handler.Hello)
 
 	// Auth
-	// auth := api.Group("/auth")
-	// auth.Post("/login", handler.Login)
+	authApi := api.Group("/auth")
+	authServices := auth.NewService(db)
 
-	// User
-	// user := api.Group("/user")
-	// user.Get("/:id", handler.GetUser)
-	// user.Post("/", handler.CreateUser)
-	// user.Patch("/:id", middleware.Protected(), handler.UpdateUser)
-	// user.Delete("/:id", middleware.Protected(), handler.DeleteUser)
+	authApi.Post("/register", auth.HandlerRegister(authServices))
+	authApi.Post("/login", auth.HandlerLogin(authServices))
 
 	// Product
 	productApi := api.Group("/product")
@@ -40,9 +38,9 @@ func SetupRoutes(app *fiber.App) {
 
 	productApi.Get("/", products.HandlerList(productServices))
 	productApi.Get("/:id", products.HandlerGet(productServices))
-	productApi.Post("/", products.HandlerAdd(productServices))
-	productApi.Delete("/:id", products.HandlerDelete(productServices))
-	productApi.Put("/:id", products.HandlerUpdate(productServices))
+	productApi.Post("/", middleware.Protected(), products.HandlerAdd(productServices))
+	productApi.Delete("/:id", middleware.Protected(), products.HandlerDelete(productServices))
+	productApi.Put("/:id", middleware.Protected(), products.HandlerUpdate(productServices))
 
 	// Category
 	categoryApi := api.Group("/category")
@@ -50,9 +48,9 @@ func SetupRoutes(app *fiber.App) {
 
 	categoryApi.Get("/", categories.HandlerList(categoryServices))
 	categoryApi.Get("/:id", categories.HandlerGet(categoryServices))
-	categoryApi.Post("/", categories.HandlerAdd(categoryServices))
-	categoryApi.Delete("/:id", categories.HandlerDelete(categoryServices))
-	categoryApi.Put("/:id", categories.HandlerUpdate(categoryServices))
+	categoryApi.Post("/", middleware.Protected(), categories.HandlerAdd(categoryServices))
+	categoryApi.Delete("/:id", middleware.Protected(), categories.HandlerDelete(categoryServices))
+	categoryApi.Put("/:id", middleware.Protected(), categories.HandlerUpdate(categoryServices))
 
 	// product.Get("/", handler.GetAllProducts)
 	// product.Get("/:id", handler.GetProduct)
