@@ -74,8 +74,9 @@ func (r *productRepository) Get(productID int) (output dto.ProductDB, err error)
 }
 
 type ParamSearchProductList struct {
-	ProductName string
-	CategoryID  int
+	ProductIDList []int
+	ProductName   string
+	CategoryID    int
 }
 
 func (r *productRepository) List(paramSearch ParamSearchProductList) (output dto.ProductDBList, err error) {
@@ -90,6 +91,12 @@ func (r *productRepository) List(paramSearch ParamSearchProductList) (output dto
 			goqu.COALESCE(goqu.I("p.image"), "").As("image"),
 			goqu.COALESCE(goqu.I("p.category_id"), 0).As("category_id"),
 		)
+
+	if len(paramSearch.ProductIDList) > 0 {
+		dataset = dataset.Where(
+			goqu.I("p.id").In(paramSearch.ProductIDList),
+		)
+	}
 
 	if paramSearch.ProductName != "" {
 		dataset = dataset.Where(

@@ -1,7 +1,7 @@
 package dto
 
 type (
-	CartItemDBList []CartDB
+	CartItemDBList []CartItemDB
 	CartItemDB     struct {
 		ID        int `db:"id" goqu:"skipinsert"`
 		CartID    int `db:"cart_id"`

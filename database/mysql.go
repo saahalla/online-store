@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"online-store/config"
 	"os"
 	"sync"
 
@@ -33,17 +34,19 @@ func GetDBConnection() (*sqlx.DB, error) {
 
 // Connect function
 func Connect() error {
-	host := os.Getenv("MYSQL_HOST")
-	user := os.Getenv("MYSQL_USER")
-	port := 3306
-	password := os.Getenv("MYSQL_PASSWORD")
-	dbname := os.Getenv("MYSQL_DBNAME")
+	host := config.GetConfig("MYSQL_HOST")
+	user := config.GetConfig("MYSQL_USER")
+	port := config.GetConfig("MYSQL_PORT")
+	password := config.GetConfig("MYSQL_PASSWORD")
+	dbname := config.GetConfig("MYSQL_DBNAME")
 
-	host = "localhost"
-	user = "saahalla"
-	port = 3306
-	password = "sahal07seven"
-	dbname = "online_store"
+	if host == "" || user == "" {
+		host = os.Getenv("MYSQL_HOST")
+		user = os.Getenv("MYSQL_USER")
+		port = os.Getenv("MYSQL_PORT")
+		password = os.Getenv("MYSQL_PASSWORD")
+		dbname = os.Getenv("MYSQL_DBNAME")
+	}
 
 	var err error
 	// Use DSN string to open
