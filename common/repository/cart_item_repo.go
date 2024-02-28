@@ -95,13 +95,13 @@ func (r *cartItemRepository) Get(params ParamSearchGetCartItem) (output dto.Cart
 }
 
 type ParamSearchGetCartItemList struct {
-	CartItemID int
+	CartItemID []int
 	CartID     int
 	ProductID  int
 }
 
 func (r *cartItemRepository) List(params ParamSearchGetCartItemList) (output dto.CartItemDBList, err error) {
-	if params.CartItemID == 0 && params.CartID == 0 && params.ProductID == 0 {
+	if len(params.CartItemID) == 0 && params.CartID == 0 && params.ProductID == 0 {
 		return output, nil
 	}
 
@@ -115,8 +115,8 @@ func (r *cartItemRepository) List(params ParamSearchGetCartItemList) (output dto
 			goqu.I("c.qty"),
 		)
 
-	if params.CartItemID != 0 {
-		dataset = dataset.Where(goqu.I("c.id").Eq(params.CartItemID))
+	if len(params.CartItemID) >= 0 {
+		dataset = dataset.Where(goqu.I("c.id").In(params.CartItemID))
 	}
 
 	if params.CartID != 0 {
