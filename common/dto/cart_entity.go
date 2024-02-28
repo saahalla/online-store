@@ -49,9 +49,9 @@ func (r *UpdateCartRequest) Validate() (err error) {
 		errStr = append(errStr, "category id is required")
 	}
 
-	if r.Qty == 0 {
-		errStr = append(errStr, "qty is required")
-	}
+	// if r.Qty == 0 {
+	// 	errStr = append(errStr, "qty is required")
+	// }
 
 	if len(errStr) > 0 {
 		return errors.New(strings.Join(errStr, ","))

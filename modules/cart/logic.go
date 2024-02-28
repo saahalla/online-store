@@ -54,6 +54,10 @@ func (s *service) Add(c *fiber.Ctx) error {
 		return fmt.Errorf("product with id %v not found", dataBody.ProductID)
 	}
 
+	if dataBody.Qty > dataProduct.Stock {
+		return fmt.Errorf("out of stock product %v", dataProduct.ProductName)
+	}
+
 	// get data cart
 	cart, err := s.repoCart.Get(repository.ParamSearchGetCart{
 		UserID: dataJwt.UserID,
@@ -83,11 +87,36 @@ func (s *service) Add(c *fiber.Ctx) error {
 		})
 	}
 
-	cartItemDB := dataBody.ToCartItemDB(cart.ID, dataJwt.Username)
+	// get cart items
+	dataCartItem, err := s.repoCartItems.Get(repository.ParamSearchGetCartItem{
+		CartID:    cart.ID,
+		ProductID: dataBody.ProductID,
+	})
 
-	err = s.repoCartItems.Add(cartItemDB)
-	if err != nil {
-		return err
+	if dataCartItem.ID == 0 {
+
+		cartItemDB := dataBody.ToCartItemDB(cart.ID, dataJwt.Username)
+
+		err = s.repoCartItems.Add(cartItemDB)
+		if err != nil {
+			return err
+		}
+
+	} else {
+
+		dataCartItem.Qty = dataCartItem.Qty + dataBody.Qty
+		dataCartItem.ModifiedAt = time.Now()
+		dataCartItem.ModifiedBy = dataJwt.Username
+
+		if dataCartItem.Qty > dataProduct.Stock {
+			return fmt.Errorf("out of stock product %v", dataProduct.ProductName)
+		}
+
+		err := s.repoCartItems.Update(dataCartItem.ID, dataCartItem)
+		if err != nil {
+			return err
+		}
+
 	}
 
 	return nil
@@ -146,7 +175,9 @@ func (s *service) Update(c *fiber.Ctx) error {
 
 		// delete cart items
 		err = s.repoCartItems.Delete(dataCartItem.ID)
-
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
