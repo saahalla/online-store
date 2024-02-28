@@ -2,6 +2,7 @@ package router
 
 import (
 	"log"
+	"online-store/common/middleware"
 	"online-store/database"
 	"online-store/modules/auth"
 	"online-store/modules/categories"
@@ -37,9 +38,9 @@ func SetupRoutes(app *fiber.App) {
 
 	productApi.Get("/", products.HandlerList(productServices))
 	productApi.Get("/:id", products.HandlerGet(productServices))
-	productApi.Post("/", products.HandlerAdd(productServices))
-	productApi.Delete("/:id", products.HandlerDelete(productServices))
-	productApi.Put("/:id", products.HandlerUpdate(productServices))
+	productApi.Post("/", middleware.Protected(), products.HandlerAdd(productServices))
+	productApi.Delete("/:id", middleware.Protected(), products.HandlerDelete(productServices))
+	productApi.Put("/:id", middleware.Protected(), products.HandlerUpdate(productServices))
 
 	// Category
 	categoryApi := api.Group("/category")
@@ -47,9 +48,9 @@ func SetupRoutes(app *fiber.App) {
 
 	categoryApi.Get("/", categories.HandlerList(categoryServices))
 	categoryApi.Get("/:id", categories.HandlerGet(categoryServices))
-	categoryApi.Post("/", categories.HandlerAdd(categoryServices))
-	categoryApi.Delete("/:id", categories.HandlerDelete(categoryServices))
-	categoryApi.Put("/:id", categories.HandlerUpdate(categoryServices))
+	categoryApi.Post("/", middleware.Protected(), categories.HandlerAdd(categoryServices))
+	categoryApi.Delete("/:id", middleware.Protected(), categories.HandlerDelete(categoryServices))
+	categoryApi.Put("/:id", middleware.Protected(), categories.HandlerUpdate(categoryServices))
 
 	// product.Get("/", handler.GetAllProducts)
 	// product.Get("/:id", handler.GetProduct)

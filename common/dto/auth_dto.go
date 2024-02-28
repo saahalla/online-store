@@ -1,5 +1,7 @@
 package dto
 
+import "time"
+
 type (
 	UserDB struct {
 		ID         int    `db:"id" goqu:"skipinsert"`
@@ -50,5 +52,6 @@ type (
 		UserID   int
 		Username string
 		Exp      int
+		ExpDate  time.Time
 	}
 )

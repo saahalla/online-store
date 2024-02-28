@@ -117,7 +117,7 @@ func (s *service) Login(c *fiber.Ctx) (jwtToken string, err error) {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = userData.Username
 	claims["user_id"] = userData.ID
-	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
 	jwtToken, err = token.SignedString([]byte(config.GetConfig("JWT_SECRET")))
 	if err != nil {

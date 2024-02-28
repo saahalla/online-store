@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -77,25 +76,4 @@ func (l *LoginRequest) CheckPasswordHash(userPassword string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(userPassword), []byte(l.Password))
 
 	return err == nil
-}
-
-// validate jwt
-func ClaimJWT(t *jwt.Token) *ClaimJWTData {
-
-	claims := t.Claims.(jwt.MapClaims)
-	uid := int(claims["user_id"].(float64))
-	exp := int(claims["exp"].(float64))
-	username := claims["username"].(string)
-
-	if uid > 0 && username != "" {
-		data := ClaimJWTData{
-			UserID:   uid,
-			Username: username,
-			Exp:      exp,
-		}
-
-		return &data
-	}
-
-	return nil
 }

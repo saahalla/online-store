@@ -3,6 +3,7 @@ package products
 import (
 	"fmt"
 	"online-store/common/dto"
+	"online-store/common/middleware"
 	"online-store/common/repository"
 	"strconv"
 
@@ -35,13 +36,15 @@ func (s *service) Add(c *fiber.Ctx) error {
 		return err
 	}
 
+	dataJwt := middleware.GetDataJWT(c.Locals("user"))
+
 	// validate category
 	category, err := s.repoCategory.Get(*dataBody.CategoryID)
 	if err != nil || category.ID == 0 {
 		return fmt.Errorf("category with id %v not found", *dataBody.CategoryID)
 	}
 
-	productDB := dataBody.PrepareDataDB()
+	productDB := dataBody.PrepareDataDB(dataJwt.Username)
 
 	err = s.repo.Add(productDB)
 	if err != nil {
@@ -50,6 +53,7 @@ func (s *service) Add(c *fiber.Ctx) error {
 
 	return nil
 }
+
 func (s *service) Update(c *fiber.Ctx) error {
 	id := c.Params("id")
 
@@ -64,6 +68,8 @@ func (s *service) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+
+	dataJwt := middleware.GetDataJWT(c.Locals("user"))
 
 	productID, err := strconv.Atoi(id)
 	if err != nil {
@@ -82,7 +88,7 @@ func (s *service) Update(c *fiber.Ctx) error {
 		return fmt.Errorf("category with id %v not found", *dataBody.CategoryID)
 	}
 
-	dataBody.PrepareDataDB(&data)
+	dataBody.PrepareDataDB(&data, dataJwt.Username)
 
 	err = s.repo.Update(productID, data)
 	if err != nil {
@@ -91,6 +97,7 @@ func (s *service) Update(c *fiber.Ctx) error {
 
 	return nil
 }
+
 func (s *service) Delete(c *fiber.Ctx) error {
 	id := c.Params("id")
 
@@ -112,6 +119,7 @@ func (s *service) Delete(c *fiber.Ctx) error {
 
 	return nil
 }
+
 func (s *service) Get(c *fiber.Ctx) (output dto.ProductDataResp, err error) {
 	id := c.Params("id")
 
@@ -139,6 +147,7 @@ func (s *service) Get(c *fiber.Ctx) (output dto.ProductDataResp, err error) {
 
 	return output, nil
 }
+
 func (s *service) List(c *fiber.Ctx) (output dto.ProductDataListResp, err error) {
 
 	products, err := s.repo.List(repository.ParamSearchProductList{})

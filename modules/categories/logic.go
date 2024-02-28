@@ -3,6 +3,7 @@ package categories
 import (
 	"fmt"
 	"online-store/common/dto"
+	"online-store/common/middleware"
 	"online-store/common/repository"
 	"strconv"
 
@@ -35,7 +36,10 @@ func (s *service) Add(c *fiber.Ctx) error {
 		return err
 	}
 
-	categoryDB := dataBody.PrepareDataDB()
+	// get data user from jwt
+	dataJwt := middleware.GetDataJWT(c.Locals("user"))
+
+	categoryDB := dataBody.PrepareDataDB(dataJwt.Username)
 
 	err = s.repo.Add(categoryDB)
 	if err != nil {
@@ -60,6 +64,9 @@ func (s *service) Update(c *fiber.Ctx) error {
 		return err
 	}
 
+	// get data user from jwt
+	dataJwt := middleware.GetDataJWT(c.Locals("user"))
+
 	categoryID, err := strconv.Atoi(id)
 	if err != nil {
 		return fmt.Errorf("id must integer")
@@ -71,7 +78,7 @@ func (s *service) Update(c *fiber.Ctx) error {
 		return fmt.Errorf("category with id %v not found", id)
 	}
 
-	dataBody.PrepareDataDB(&data)
+	dataBody.PrepareDataDB(&data, dataJwt.Username)
 
 	err = s.repo.Update(categoryID, data)
 	if err != nil {

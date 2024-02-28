@@ -7,9 +7,12 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.1
 )
 
+require github.com/MicahParks/keyfunc/v2 v2.1.0 // indirect
+
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/doug-martin/goqu/v9 v9.19.0
+	github.com/gofiber/contrib/jwt v1.0.8
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/uuid v1.5.0 // indirect
 	github.com/jmoiron/sqlx v1.3.5

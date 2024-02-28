@@ -33,7 +33,7 @@ func (r *AddProductRequest) Validate() (err error) {
 	return nil
 }
 
-func (r *AddProductRequest) PrepareDataDB() ProductDB {
+func (r *AddProductRequest) PrepareDataDB(username string) ProductDB {
 	now := time.Now()
 
 	productDB := ProductDB{
@@ -45,9 +45,9 @@ func (r *AddProductRequest) PrepareDataDB() ProductDB {
 	}
 
 	productDB.CreatedAt = now
-	productDB.CreatedBy = "test"
+	productDB.CreatedBy = username
 	productDB.ModifiedAt = now
-	productDB.ModifiedBy = "test"
+	productDB.ModifiedBy = username
 
 	return productDB
 }
@@ -158,7 +158,7 @@ func (r *UpdateProductRequest) Validate() (err error) {
 	return nil
 }
 
-func (r *UpdateProductRequest) PrepareDataDB(data *ProductDB) {
+func (r *UpdateProductRequest) PrepareDataDB(data *ProductDB, username string) {
 
 	if r.ProductName != "" {
 		data.ProductName = r.ProductName
@@ -181,6 +181,7 @@ func (r *UpdateProductRequest) PrepareDataDB(data *ProductDB) {
 	}
 
 	data.ModifiedAt = time.Now()
+	data.ModifiedBy = username
 
 	// if r.CategoryID != nil {
 	// 	data.CategoryID = r.CategoryID
