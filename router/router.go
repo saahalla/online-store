@@ -5,6 +5,7 @@ import (
 	"online-store/common/middleware"
 	"online-store/database"
 	"online-store/modules/auth"
+	carts "online-store/modules/cart"
 	"online-store/modules/categories"
 	"online-store/modules/products"
 
@@ -52,6 +53,12 @@ func SetupRoutes(app *fiber.App) {
 	categoryApi.Delete("/:id", middleware.Protected(), categories.HandlerDelete(categoryServices))
 	categoryApi.Put("/:id", middleware.Protected(), categories.HandlerUpdate(categoryServices))
 
+	cartApi := api.Group("/cart")
+	cartServices := carts.NewService(db)
+
+	cartApi.Get("/:id", middleware.Protected(), carts.HandlerGet(cartServices))
+	cartApi.Put("/:id", middleware.Protected(), carts.HandlerUpdate(cartServices))
+	cartApi.Post("/", middleware.Protected(), carts.HandlerAdd(cartServices))
 	// product.Get("/", handler.GetAllProducts)
 	// product.Get("/:id", handler.GetProduct)
 	// product.Post("/", middleware.Protected(), handler.CreateProduct)

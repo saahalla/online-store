@@ -1,0 +1,235 @@
+package carts
+
+import (
+	"fmt"
+	"online-store/common/dto"
+	"online-store/common/middleware"
+	"online-store/common/repository"
+	"strconv"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/jmoiron/sqlx"
+)
+
+type service struct {
+	repoCart      repository.CartRepository
+	repoCartItems repository.CartItemRepository
+	repoProducts  repository.ProductRepository
+}
+
+func NewService(db *sqlx.DB) Service {
+	return &service{
+		repoCart:      repository.NewCartRepo(db),
+		repoCartItems: repository.NewCartItemRepo(db),
+		repoProducts:  repository.NewProductRepo(db),
+	}
+}
+
+func (s *service) Add(c *fiber.Ctx) error {
+	dataBody := new(dto.AddCartRequest)
+
+	// Parse body into struct
+	if err := c.BodyParser(dataBody); err != nil {
+		return err
+	}
+
+	err := dataBody.Validate()
+	if err != nil {
+		return err
+	}
+
+	// get data user from jwt
+	dataJwt, err := middleware.GetDataJWT(c.Locals("user"))
+	if err != nil {
+		return err
+	}
+
+	dataProduct, err := s.repoProducts.Get(dataBody.ProductID)
+	if err != nil {
+		return err
+	}
+
+	if dataProduct.ID == 0 {
+		return fmt.Errorf("product with id %v not found", dataBody.ProductID)
+	}
+
+	// get data cart
+	cart, err := s.repoCart.Get(repository.ParamSearchGetCart{
+		UserID: dataJwt.UserID,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if cart.ID == 0 {
+		// insert new cart
+		cartDB := dto.CartDB{
+			UserID: dataJwt.UserID,
+		}
+		cartDB.CreatedAt = time.Now()
+		cartDB.ModifiedAt = time.Now()
+		cartDB.CreatedBy = dataJwt.Username
+		cartDB.ModifiedBy = dataJwt.Username
+
+		err := s.repoCart.Add(cartDB)
+		if err != nil {
+			return err
+		}
+
+		cart, err = s.repoCart.Get(repository.ParamSearchGetCart{
+			UserID: dataJwt.UserID,
+		})
+	}
+
+	cartItemDB := dataBody.ToCartItemDB(cart.ID, dataJwt.Username)
+
+	err = s.repoCartItems.Add(cartItemDB)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *service) Update(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	dataBody := new(dto.UpdateCartRequest)
+
+	// Parse body into struct
+	if err := c.BodyParser(dataBody); err != nil {
+		return err
+	}
+
+	err := dataBody.Validate()
+	if err != nil {
+		return err
+	}
+
+	// get data user from jwt
+	dataJwt, err := middleware.GetDataJWT(c.Locals("user"))
+	if err != nil {
+		return err
+	}
+
+	cartID, err := strconv.Atoi(id)
+	if err != nil {
+		return fmt.Errorf("id must integer")
+	}
+
+	// validate
+	dataCart, err := s.repoCart.Get(repository.ParamSearchGetCart{
+		CartID: cartID,
+	})
+	if err != nil || dataCart.ID == 0 {
+		return fmt.Errorf("cart with id %v not found", id)
+	}
+
+	dataCartItem, err := s.repoCartItems.Get(repository.ParamSearchGetCartItem{
+		CartID:    dataCart.ID,
+		ProductID: dataBody.ProductID,
+	})
+
+	dataBody.PrepareDataDB(&dataCartItem, dataJwt.Username)
+
+	if dataBody.Qty > 0 {
+
+		// update data cart items qty
+		err = s.repoCartItems.Update(dataCartItem.ID, dataCartItem)
+		if err != nil {
+			return fmt.Errorf("failed to update cart with id %v", cartID)
+		}
+
+	} else {
+
+		// delete cart items
+		err = s.repoCartItems.Delete(dataCartItem.ID)
+
+	}
+
+	return nil
+}
+
+// func (s *service) Delete(c *fiber.Ctx) error {
+// 	id := c.Params("id")
+
+// 	cartID, err := strconv.Atoi(id)
+// 	if err != nil {
+// 		return fmt.Errorf("id must integer")
+// 	}
+
+// 	// validate
+// 	data, err := s.repoCart.Get(cartID)
+// 	if err != nil || data.ID == 0 {
+// 		return fmt.Errorf("cart with id %v not found", id)
+// 	}
+
+// 	err = s.repoCart.Delete(cartID)
+// 	if err != nil {
+// 		return fmt.Errorf("failed to delete cart with id %v", cartID)
+// 	}
+
+// 	return nil
+// }
+
+func (s *service) Get(c *fiber.Ctx) (output dto.CartDataResp, err error) {
+	id := c.Params("id")
+
+	cartID, err := strconv.Atoi(id)
+	if err != nil {
+		return output, fmt.Errorf("id must integer")
+	}
+
+	// get data user from jwt
+	dataJwt, err := middleware.GetDataJWT(c.Locals("user"))
+	if err != nil {
+		return output, err
+	}
+
+	// get cart
+	data, err := s.repoCart.Get(repository.ParamSearchGetCart{
+		CartID: cartID,
+		UserID: dataJwt.UserID,
+	})
+	if err != nil {
+		return output, err
+	}
+
+	if data.ID == 0 {
+		return output, fmt.Errorf("cart with id %v not found", cartID)
+	}
+
+	// get cart items
+	cartItems, err := s.repoCartItems.DetailList(repository.ParamSearchDetailCartItem{
+		CartID: cartID,
+	})
+	if err != nil {
+		return output, err
+	}
+
+	cartData := data.PrepareDataJSON(cartItems, dataJwt.Username)
+
+	output = cartData
+
+	return output, nil
+}
+
+// func (s *service) List(c *fiber.Ctx) (output dto.CartDataListResp, err error) {
+
+// 	carts, err := s.repoCart.List()
+// 	if err != nil {
+// 		return output, err
+// 	}
+
+// 	// get all products
+// 	products, err := s.repoProducts.List(repository.ParamSearchProductList{})
+// 	if err != nil {
+// 		return output, err
+// 	}
+
+// 	output = carts.PrepareDataJSON(products)
+
+// 	return output, nil
+// }

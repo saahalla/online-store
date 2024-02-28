@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"online-store/common/dto"
 	"online-store/config"
 	"time"
@@ -28,11 +29,15 @@ func jwtError(c *fiber.Ctx, err error) error {
 }
 
 // get data jwt
-func GetDataJWT(token interface{}) *dto.ClaimJWTData {
+func GetDataJWT(token interface{}) (*dto.ClaimJWTData, error) {
+	if token == nil {
+		return nil, fmt.Errorf("Missing or malformed JWT")
+	}
+
 	jwtToken := token.(*jwt.Token)
 	dataJwt := ClaimJWT(jwtToken)
 
-	return dataJwt
+	return dataJwt, nil
 }
 
 func ClaimJWT(t *jwt.Token) *dto.ClaimJWTData {

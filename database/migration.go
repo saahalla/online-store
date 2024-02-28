@@ -3,25 +3,11 @@ package database
 import "github.com/jmoiron/sqlx"
 
 func Migration(db *sqlx.DB) error {
-	err := CreateTableUsers(db)
-	if err != nil {
-		return err
-	}
-
-	err = CreateTableProducts(db)
-	if err != nil {
-		return err
-	}
-
-	err = CreateTableCategories(db)
-	if err != nil {
-		return err
-	}
-
-	err = AlterTableProducts(db)
-	if err != nil {
-		return err
-	}
+	CreateTableUsers(db)
+	CreateTableProducts(db)
+	CreateTableCategories(db)
+	AlterTableProducts(db)
+	CreateTableCartsAndCartItems(db)
 
 	return nil
 }
@@ -99,6 +85,37 @@ func CreateTableCategories(db *sqlx.DB) error {
 	  `
 
 	_, err := db.Exec(categories)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func CreateTableCartsAndCartItems(db *sqlx.DB) error {
+	carts := `
+		CREATE TABLE IF NOT EXISTS carts (
+			id int AUTO_INCREMENT not null PRIMARY KEY,
+			user_id int not null,
+			created_at timestamp not null default current_timestamp,
+			created_by varchar(255),
+			modified_at timestamp not null default current_timestamp,
+			modified_by varchar(255)
+		);
+
+		CREATE TABLE IF NOT EXISTS cart_items (
+			id int AUTO_INCREMENT not null PRIMARY KEY,
+			cart_id int not null,
+			product_id int not null,
+			qty int not null default 0,
+			created_at timestamp not null default current_timestamp,
+			created_by varchar(255),
+			modified_at timestamp not null default current_timestamp,
+			modified_by varchar(255)
+		);
+	  `
+
+	_, err := db.Exec(carts)
 	if err != nil {
 		return err
 	}

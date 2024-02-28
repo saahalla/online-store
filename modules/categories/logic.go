@@ -37,7 +37,10 @@ func (s *service) Add(c *fiber.Ctx) error {
 	}
 
 	// get data user from jwt
-	dataJwt := middleware.GetDataJWT(c.Locals("user"))
+	dataJwt, err := middleware.GetDataJWT(c.Locals("user"))
+	if err != nil {
+		return err
+	}
 
 	categoryDB := dataBody.PrepareDataDB(dataJwt.Username)
 
@@ -65,7 +68,10 @@ func (s *service) Update(c *fiber.Ctx) error {
 	}
 
 	// get data user from jwt
-	dataJwt := middleware.GetDataJWT(c.Locals("user"))
+	dataJwt, err := middleware.GetDataJWT(c.Locals("user"))
+	if err != nil {
+		return err
+	}
 
 	categoryID, err := strconv.Atoi(id)
 	if err != nil {
