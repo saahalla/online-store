@@ -3,3 +3,4 @@ sf7-enterprise-std
 vendor/
 .vscode/*
 *.exe
+.env

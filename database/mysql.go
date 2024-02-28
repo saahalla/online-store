@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"online-store/config"
+	"os"
 	"sync"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -38,6 +39,14 @@ func Connect() error {
 	port := config.GetConfig("MYSQL_PORT")
 	password := config.GetConfig("MYSQL_PASSWORD")
 	dbname := config.GetConfig("MYSQL_DBNAME")
+
+	if host == "" || user == "" {
+		host = os.Getenv("MYSQL_HOST")
+		user = os.Getenv("MYSQL_USER")
+		port = os.Getenv("MYSQL_PORT")
+		password = os.Getenv("MYSQL_PASSWORD")
+		dbname = os.Getenv("MYSQL_DBNAME")
+	}
 
 	var err error
 	// Use DSN string to open
