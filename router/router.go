@@ -3,6 +3,7 @@ package router
 import (
 	"log"
 	"online-store/database"
+	"online-store/modules/auth"
 	"online-store/modules/categories"
 	"online-store/modules/products"
 
@@ -24,15 +25,11 @@ func SetupRoutes(app *fiber.App) {
 	// api.Get("/", handler.Hello)
 
 	// Auth
-	// auth := api.Group("/auth")
-	// auth.Post("/login", handler.Login)
+	authApi := api.Group("/auth")
+	authServices := auth.NewService(db)
 
-	// User
-	// user := api.Group("/user")
-	// user.Get("/:id", handler.GetUser)
-	// user.Post("/", handler.CreateUser)
-	// user.Patch("/:id", middleware.Protected(), handler.UpdateUser)
-	// user.Delete("/:id", middleware.Protected(), handler.DeleteUser)
+	authApi.Post("/register", auth.HandlerRegister(authServices))
+	authApi.Post("/login", auth.HandlerLogin(authServices))
 
 	// Product
 	productApi := api.Group("/product")
