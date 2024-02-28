@@ -96,3 +96,7 @@ Proyek ini adalah contoh aplikasi Golang sederhana yang menggunakan database, da
 - Jangan lupa memastikan dependensi proyek terinstal dengan benar menggunakan perintah `go mod tidy`.
 
 Selamat menjelajahi proyek Golang Anda dengan database dan konfigurasi .env!
+
+## ERD Database
+
+![alt text](https://github.com/saahalla/online-store/blob/master/erd.png?raw=true)
