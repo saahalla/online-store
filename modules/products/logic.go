@@ -139,9 +139,13 @@ func (s *service) Get(c *fiber.Ctx) (output dto.ProductDataResp, err error) {
 		return output, err
 	}
 
+	if data.ID == 0 {
+		return output, fmt.Errorf("product with id %v not found", id)
+	}
+
 	category, err := s.repoCategory.Get(data.CategoryID)
 	if err != nil || data.ID == 0 {
-		return output, fmt.Errorf("category with id %v not found", id)
+		return output, fmt.Errorf("category with id %v not found", data.CategoryID)
 	}
 
 	productData := data.ToDataJSON(category.ToData())
