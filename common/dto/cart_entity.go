@@ -49,10 +49,6 @@ func (r *UpdateCartRequest) Validate() (err error) {
 		errStr = append(errStr, "category id is required")
 	}
 
-	// if r.Qty == 0 {
-	// 	errStr = append(errStr, "qty is required")
-	// }
-
 	if len(errStr) > 0 {
 		return errors.New(strings.Join(errStr, ","))
 	}
@@ -72,7 +68,6 @@ func (r *UpdateCartRequest) PrepareDataDB(data *CartItemDB, username string) {
 
 func (c *CartDB) PrepareDataJSON(cartItems CartItemDataList, username string) CartDataResp {
 	output := CartDataResp{
-		ID:        c.ID,
 		Username:  username,
 		CartItems: cartItems,
 	}

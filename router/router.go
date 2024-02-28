@@ -56,8 +56,8 @@ func SetupRoutes(app *fiber.App) {
 	cartApi := api.Group("/cart")
 	cartServices := carts.NewService(db)
 
-	cartApi.Get("/:id", middleware.Protected(), carts.HandlerGet(cartServices))
-	cartApi.Put("/:id", middleware.Protected(), carts.HandlerUpdate(cartServices))
+	cartApi.Get("/", middleware.Protected(), carts.HandlerGet(cartServices))
+	cartApi.Put("/", middleware.Protected(), carts.HandlerUpdate(cartServices))
 	cartApi.Post("/", middleware.Protected(), carts.HandlerAdd(cartServices))
 	// product.Get("/", handler.GetAllProducts)
 	// product.Get("/:id", handler.GetProduct)

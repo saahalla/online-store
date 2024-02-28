@@ -12,7 +12,7 @@ type (
 
 	CartItemDataList []CartItemData
 	CartItemData     struct {
-		ID          int    `db:"id" json:"id"`
+		ProductID   int    `db:"product_id" json:"product_id"`
 		ProductName string `db:"product_name" json:"product_name"`
 		Qty         int    `db:"qty" json:"qty"`
 	}

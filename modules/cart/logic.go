@@ -5,7 +5,6 @@ import (
 	"online-store/common/dto"
 	"online-store/common/middleware"
 	"online-store/common/repository"
-	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -123,7 +122,6 @@ func (s *service) Add(c *fiber.Ctx) error {
 }
 
 func (s *service) Update(c *fiber.Ctx) error {
-	id := c.Params("id")
 
 	dataBody := new(dto.UpdateCartRequest)
 
@@ -143,17 +141,17 @@ func (s *service) Update(c *fiber.Ctx) error {
 		return err
 	}
 
-	cartID, err := strconv.Atoi(id)
-	if err != nil {
-		return fmt.Errorf("id must integer")
-	}
-
 	// validate
 	dataCart, err := s.repoCart.Get(repository.ParamSearchGetCart{
-		CartID: cartID,
+		UserID: dataJwt.UserID,
 	})
 	if err != nil || dataCart.ID == 0 {
-		return fmt.Errorf("cart with id %v not found", id)
+		return fmt.Errorf("cart not found")
+	}
+
+	dataProduct, err := s.repoProducts.Get(dataBody.ProductID)
+	if err != nil || dataProduct.ID == 0 {
+		return fmt.Errorf("product not found")
 	}
 
 	dataCartItem, err := s.repoCartItems.Get(repository.ParamSearchGetCartItem{
@@ -164,11 +162,14 @@ func (s *service) Update(c *fiber.Ctx) error {
 	dataBody.PrepareDataDB(&dataCartItem, dataJwt.Username)
 
 	if dataBody.Qty > 0 {
+		if dataBody.Qty > dataProduct.Stock {
+			return fmt.Errorf("out of stock product %v", dataProduct.ProductName)
+		}
 
 		// update data cart items qty
 		err = s.repoCartItems.Update(dataCartItem.ID, dataCartItem)
 		if err != nil {
-			return fmt.Errorf("failed to update cart with id %v", cartID)
+			return fmt.Errorf("failed to update cart")
 		}
 
 	} else {
@@ -206,12 +207,6 @@ func (s *service) Update(c *fiber.Ctx) error {
 // }
 
 func (s *service) Get(c *fiber.Ctx) (output dto.CartDataResp, err error) {
-	id := c.Params("id")
-
-	cartID, err := strconv.Atoi(id)
-	if err != nil {
-		return output, fmt.Errorf("id must integer")
-	}
 
 	// get data user from jwt
 	dataJwt, err := middleware.GetDataJWT(c.Locals("user"))
@@ -221,7 +216,6 @@ func (s *service) Get(c *fiber.Ctx) (output dto.CartDataResp, err error) {
 
 	// get cart
 	data, err := s.repoCart.Get(repository.ParamSearchGetCart{
-		CartID: cartID,
 		UserID: dataJwt.UserID,
 	})
 	if err != nil {
@@ -229,12 +223,12 @@ func (s *service) Get(c *fiber.Ctx) (output dto.CartDataResp, err error) {
 	}
 
 	if data.ID == 0 {
-		return output, fmt.Errorf("cart with id %v not found", cartID)
+		return output, fmt.Errorf("there is no data on cart")
 	}
 
 	// get cart items
 	cartItems, err := s.repoCartItems.DetailList(repository.ParamSearchDetailCartItem{
-		CartID: cartID,
+		CartID: data.ID,
 	})
 	if err != nil {
 		return output, err

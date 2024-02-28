@@ -16,10 +16,8 @@ type (
 
 	CartDataListResp []CartDataResp
 	CartDataResp     struct {
-		ID        int              `json:"id"`
 		Username  string           `json:"username"`
 		CartItems CartItemDataList `json:"cart_items"`
-		// Products []ProductDataList `json:"products"`
 	}
 )
 

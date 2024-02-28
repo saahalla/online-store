@@ -152,7 +152,7 @@ func (r *cartItemRepository) DetailList(params ParamSearchDetailCartItem) (outpu
 
 	dataset := dialect.
 		Select(
-			goqu.I("c.id"),
+			goqu.I("c.product_id"),
 			goqu.I("p.product_name"),
 			goqu.I("c.qty"),
 		).From(goqu.T(constant.TableCartItems).As("c")).
