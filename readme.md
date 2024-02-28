@@ -100,3 +100,8 @@ Selamat menjelajahi proyek Golang Anda dengan database dan konfigurasi .env!
 ## ERD Database
 
 ![alt text](https://github.com/saahalla/online-store/blob/master/erd.png?raw=true)
+
+## Postman Collection Files
+
+Online_Store_BE_Golang.postman_collection.json
+[Postman Collection](Online_Store_BE_Golang.postman_collection.json)
