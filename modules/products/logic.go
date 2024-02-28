@@ -36,7 +36,10 @@ func (s *service) Add(c *fiber.Ctx) error {
 		return err
 	}
 
-	dataJwt := middleware.GetDataJWT(c.Locals("user"))
+	dataJwt, err := middleware.GetDataJWT(c.Locals("user"))
+	if err != nil {
+		return err
+	}
 
 	// validate category
 	category, err := s.repoCategory.Get(*dataBody.CategoryID)
@@ -69,7 +72,10 @@ func (s *service) Update(c *fiber.Ctx) error {
 		return err
 	}
 
-	dataJwt := middleware.GetDataJWT(c.Locals("user"))
+	dataJwt, err := middleware.GetDataJWT(c.Locals("user"))
+	if err != nil {
+		return err
+	}
 
 	productID, err := strconv.Atoi(id)
 	if err != nil {
